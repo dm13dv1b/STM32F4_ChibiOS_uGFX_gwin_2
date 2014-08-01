@@ -22,7 +22,7 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-
+#define GDISP_USE_DMA
 ///////////////////////////////////////////////////////////////////////////
 // GOS - One of these must be defined, preferably in your Makefile       //
 ///////////////////////////////////////////////////////////////////////////
@@ -91,12 +91,12 @@
 //    #define GDISP_NEED_IMAGE_PNG                     FALSE
 //    #define GDISP_NEED_IMAGE_ACCOUNTING              FALSE
 
-//#define GDISP_NEED_STARTUP_LOGO                      TRUE
+#define GDISP_NEED_STARTUP_LOGO                      TRUE
 
 //#define GDISP_DEFAULT_ORIENTATION                    GDISP_ROTATE_LANDSCAPE    // If not defined the native hardware orientation is used.
 //#define GDISP_LINEBUF_SIZE                           128
 
-#define GDISP_TOTAL_DISPLAYS                         1
+//#define GDISP_TOTAL_DISPLAYS                         1
 //    #if GDISP_TOTAL_DISPLAYS > 1
 //        // For code and speed optimization define as TRUE or FALSE if all displays have the same capability
 //        #define GDISP_HARDWARE_STREAM_WRITE          FALSE

@@ -25,6 +25,8 @@
 #include "test.h"
 #include "gfx.h"
 
+	coord_t		width, height;
+	font_t	font1, font2;
 /*
  * This is a periodic thread that does absolutely nothing except flashing
  * a LED.
@@ -36,10 +38,10 @@ static msg_t Thread1(void *arg) {
   chRegSetThreadName("blinker");
   while (TRUE) {
     palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
-    gdispClear(Green);
+    //gdispFillStringBox(0, 0, width, 40, "It's alive :)", font1, Green, White, justifyCenter);
     chThdSleepMilliseconds(500);
     palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
-    gdispClear(Black);
+    //gdispFillStringBox(0, 0, width, 40, "It's dead :(", font1, Green, White, justifyCenter);
     chThdSleepMilliseconds(500);
   }
 }
@@ -49,7 +51,6 @@ static msg_t Thread1(void *arg) {
  */
 int main(void) {
 
-	coord_t		width, height;
   /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
@@ -67,8 +68,10 @@ int main(void) {
   // Get the screen size
   width = gdispGetWidth();
   height = gdispGetHeight();
-  gdispClear(Green);
-  gdispDrawBox(10, 10, width/2, height/2, Yellow);
+  gdispClear(Black);
+  //gdispDrawBox(10, 10, width/2, height/2, Yellow);
+  font1 = gdispOpenFont("UI2");
+
   /*
    * Activates the serial driver 1 using the driver default configuration.
    * PA2(TX) and PA3(RX) are routed to USART2.
