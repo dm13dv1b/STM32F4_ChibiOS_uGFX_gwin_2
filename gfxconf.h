@@ -74,6 +74,7 @@
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS32_AA       FALSE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANSBOLD12_AA   FALSE
 //    #define GDISP_INCLUDE_USER_FONTS                 FALSE
+#define GDISP_DEFAULT_ORIENTATION                    GDISP_ROTATE_270
 
 //#define GDISP_NEED_IMAGE                             FALSE
 //    #define GDISP_NEED_IMAGE_NATIVE                  FALSE
