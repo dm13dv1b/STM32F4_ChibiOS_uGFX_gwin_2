@@ -1,1 +1,0 @@
-STM32F4_ChibiOS_uGFX template project
