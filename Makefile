@@ -95,8 +95,11 @@ CSRC = $(PORTSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(GFXSRC) \
+       $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       main.c
+       main.c \
+       myADC.c \
+       myFunc.c
        
        #$(CHIBIOS)/os/various/devices_lib/accel/lis302dl.c \
        

@@ -48,7 +48,7 @@
 #define GDISP_NEED_MULTITHREAD                       TRUE
 //#define GDISP_NEED_STREAMING                         FALSE
 #define GDISP_NEED_TEXT                              	TRUE
-#define GDISP_NEED_ANTIALIAS                     		TRUE
+#define GDISP_NEED_ANTIALIAS                     		FALSE
 #define GDISP_NEED_UTF8                          		TRUE
 //    #define GDISP_NEED_TEXT_KERNING                  FALSE
 #define GDISP_INCLUDE_FONT_UI1                   		TRUE
@@ -69,22 +69,22 @@
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANS32_AA       FALSE
 //    #define GDISP_INCLUDE_FONT_DEJAVUSANSBOLD12_AA   FALSE
 //    #define GDISP_INCLUDE_USER_FONTS                 FALSE
-#define GDISP_DEFAULT_ORIENTATION                    GDISP_ROTATE_90
+#define GDISP_DEFAULT_ORIENTATION                    	GDISP_ROTATE_90
 
-//#define GDISP_NEED_IMAGE                             FALSE
-//    #define GDISP_NEED_IMAGE_NATIVE                  FALSE
+#define GDISP_NEED_IMAGE                             	TRUE
+//#define GDISP_NEED_IMAGE_NATIVE                  		TRUE
 //    #define GDISP_NEED_IMAGE_GIF                     FALSE
-//    #define GDISP_NEED_IMAGE_BMP                     FALSE
+#define GDISP_NEED_IMAGE_BMP                     		TRUE
 //        #define GDISP_NEED_IMAGE_BMP_1               FALSE
 //        #define GDISP_NEED_IMAGE_BMP_4               FALSE
 //        #define GDISP_NEED_IMAGE_BMP_4_RLE           FALSE
 //        #define GDISP_NEED_IMAGE_BMP_8               FALSE
 //        #define GDISP_NEED_IMAGE_BMP_8_RLE           FALSE
-//        #define GDISP_NEED_IMAGE_BMP_16              FALSE
+#define GDISP_NEED_IMAGE_BMP_16              			TRUE
 //        #define GDISP_NEED_IMAGE_BMP_24              FALSE
 //        #define GDISP_NEED_IMAGE_BMP_32              FALSE
 //    #define GDISP_NEED_IMAGE_JPG                     FALSE
-//    #define GDISP_NEED_IMAGE_PNG                     FALSE
+//#define GDISP_NEED_IMAGE_PNG                     		TRUE
 //    #define GDISP_NEED_IMAGE_ACCOUNTING              FALSE
 
 #define GDISP_NEED_STARTUP_LOGO                      TRUE
@@ -122,7 +122,7 @@
 #define GWIN_BUTTON_LAZY_RELEASE             			TRUE
 #define GWIN_NEED_SLIDER                         		TRUE
 //    #define GWIN_NEED_CHECKBOX                       FALSE
-//    #define GWIN_NEED_IMAGE                          FALSE
+#define GWIN_NEED_IMAGE                          		TRUE
 //        #define GWIN_NEED_IMAGE_ANIMATION            FALSE
 //    #define GWIN_NEED_RADIO                          FALSE
 //    #define GWIN_NEED_LIST                           FALSE
@@ -158,7 +158,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // GQUEUE                                                                //
 ///////////////////////////////////////////////////////////////////////////
-//#define GFX_USE_GQUEUE                               FALSE
+#define GFX_USE_GQUEUE                               	TRUE
 
 //#define GQUEUE_NEED_ASYNC                            FALSE
 //#define GQUEUE_NEED_GSYNC                            FALSE
@@ -179,21 +179,21 @@
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
 ///////////////////////////////////////////////////////////////////////////
-//#define GFX_USE_GFILE                                FALSE
+#define GFX_USE_GFILE                                	TRUE
 
 //#define GFILE_NEED_PRINTG                            FALSE
 //#define GFILE_NEED_SCANG                             FALSE
 //#define GFILE_NEED_STRINGS                           FALSE
 //#define GFILE_NEED_STDIO                             FALSE
 //    #define GFILE_ALLOW_FLOATS                       FALSE
-//    #define GFILE_ALLOW_DEVICESPECIFIC               FALSE
+#define GFILE_ALLOW_DEVICESPECIFIC               		TRUE
 //    #define GFILE_MAX_GFILES                         3
 
-//#define GFILE_NEED_MEMFS                             FALSE
-//#define GFILE_NEED_ROMFS                             FALSE
+#define GFILE_NEED_MEMFS                             	TRUE
+#define GFILE_NEED_ROMFS                             	TRUE
 //#define GFILE_NEED_RAMFS                             FALSE
 //#define GFILE_NEED_FATFS                             FALSE
-//#define GFILE_NEED_NATIVEFS                          FALSE
+//#define GFILE_NEED_NATIVEFS                          	TRUE
 //#define GFILE_NEED_CHBIOSFS                          FALSE
 
 

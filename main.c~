@@ -1,26 +1,38 @@
+
+
 /*
-    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+                 2011 Giovanni Di Sirio.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+    This file is part of ChibiOS/RT.
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    ChibiOS/RT is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    ChibiOS/RT is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ch.h"
 #include "hal.h"
-#include "test.h"
+#include "gfx.h"
+#include "chprintf.h"
+#include "ugfx.h"
+#include "bibi.h"
+#include "ADCstart.h"
+#include "stdlib.h"
+#include "string.h"
+#include "calib.gfx"
 
-static void pwmpcb(PWMDriver *pwmp);
+//ADC CallBack
 static void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
-static void spicb(SPIDriver *spip);
 
 /* Total number of channels to be sampled by a single ADC operation.*/
 #define ADC_GRP1_NUM_CHANNELS   2
@@ -54,53 +66,45 @@ static const ADCConversionGroup adcgrpcfg = {
   ADC_SQR3_SQ2_N(ADC_CHANNEL_IN11) | ADC_SQR3_SQ1_N(ADC_CHANNEL_SENSOR)
 };
 
-/*
- * PWM configuration structure.
- * Cyclic callback enabled, channels 1 and 4 enabled without callbacks,
- * the active state is a logic one.
- */
-static PWMConfig pwmcfg = {
-  10000,                                    /* 10kHz PWM clock frequency.   */
-  10000,                                    /* PWM period 1S (in ticks).    */
-  pwmpcb,
-  {
-    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-    {PWM_OUTPUT_DISABLED, NULL},
-    {PWM_OUTPUT_DISABLED, NULL},
-    {PWM_OUTPUT_ACTIVE_HIGH, NULL}
-  },
-  /* HW dependent part.*/
-  0,
-  0
-};
+// general constants
+static GConsoleObject			gc;
+static GListener				gl;
+//static GListener				me;
+static GSourceHandle 			mouse;
+static GHandle					ghc;
+static GHandle					ghADC1, ghADC1value, ghADC2, ghRPM, ghSpeed, ghBrightness, ghContrast;
+static GHandle					ghStatus1, ghStatus2, ghADC;
+static GHandle					ghStartADC, ghStopADC;
+static GHandle					ghImage1, ghImage2, ghImage3;
+static GEventMouse				*pem;
+static GEvent*					pe;
+static coord_t 					width, height;
+static coord_t					bWidth, bHeight;
+static coord_t					swidth, sheight;
+static font_t					font;
+
+//static uint8_t					t_calibration;
 
 /*
- * SPI2 configuration structure.
- * Speed 21MHz, CPHA=0, CPOL=0, 16bits frames, MSb transmitted first.
- * The slave select line is the pin 12 on the port GPIOA.
+ * This is a periodic thread that does absolutely nothing except flashing
+ * a LED.
  */
-static const SPIConfig spi2cfg = {
-  spicb,
-  /* HW dependent part.*/
-  GPIOB,
-  12,
-  SPI_CR1_DFF
-};
 
-/*
- * PWM cyclic callback.
- * A new ADC conversion is started.
- */
-static void pwmpcb(PWMDriver *pwmp) {
+static WORKING_AREA(waThread1, 1024);
+static msg_t Thread1(void *arg) {
 
-  (void)pwmp;
+  (void)arg;
+  chRegSetThreadName("blinker");
+  while (TRUE) {
+    palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
+    gwinSetText(ghStatus1, "Running", TRUE);
 
-  /* Starts an asynchronous ADC conversion operation, the conversion
-     will be executed in parallel to the current PWM cycle and will
-     terminate before the next PWM cycle.*/
-  chSysLockFromIsr();
-  adcStartConversionI(&ADCD1, &adcgrpcfg, samples, ADC_GRP1_BUF_DEPTH);
-  chSysUnlockFromIsr();
+    chThdSleepMilliseconds(500);
+    palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
+    gwinSetText(ghStatus1, "", TRUE);
+    chThdSleepMilliseconds(500);
+  }
+  return 0;
 }
 
 /*
@@ -108,59 +112,281 @@ static void pwmpcb(PWMDriver *pwmp) {
  * The PWM channels are reprogrammed using the latest ADC samples.
  * The latest samples are transmitted into a single SPI transaction.
  */
-void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
+static void adccb(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
   (void) buffer; (void) n;
+  char _buffer[20];            // this will be our output string. Make sure it's long enough.
   /* Note, only in the ADC_COMPLETE state because the ADC driver fires an
      intermediate callback when the buffer is half full.*/
+  gwinSetText(ghStatus2, "ADC on", TRUE);
   if (adcp->state == ADC_COMPLETE) {
-    adcsample_t avg_ch1, avg_ch2;
-
+    adcsample_t avg_ch1; //avg_ch2;
+    uint16_t avg_ch1_int;
+    gwinSetText(ghADC, "ADC complete", TRUE);
+    chprintf( (BaseSequentialStream *)&SD2, "ADC sampling\n", NULL );
     /* Calculates the average values from the ADC samples.*/
     avg_ch1 = (samples[0] + samples[2] + samples[4] + samples[6]) / 4;
-    avg_ch2 = (samples[1] + samples[3] + samples[5] + samples[7]) / 4;
-
-    chSysLockFromIsr();
-
-    /* Changes the channels pulse width, the change will be effective
-       starting from the next cycle.*/
-    pwmEnableChannelI(&PWMD4, 0, PWM_FRACTION_TO_WIDTH(&PWMD4, 4096, avg_ch1));
-    pwmEnableChannelI(&PWMD4, 3, PWM_FRACTION_TO_WIDTH(&PWMD4, 4096, avg_ch2));
-
-    /* SPI slave selection and transmission start.*/
-    spiSelectI(&SPID2);
-    spiStartSendI(&SPID2, ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH, samples);
-
-    chSysUnlockFromIsr();
+    //avg_ch2 = (samples[1] + samples[3] + samples[5] + samples[7]) / 4;
+    avg_ch1_int = avg_ch1;
+    chprintf( (BaseSequentialStream *)&SD2, "Voltage: %d\r\n", avg_ch1_int );
+    chprintf( (BaseSequentialStream *)_buffer, "Voltage: %d\r\n", avg_ch1_int );
+    gdispDrawString(10, 10, _buffer, font, Black);     // draw the string on the screen
   }
 }
 
-/*
- * SPI end transfer callback.
- */
-static void spicb(SPIDriver *spip) {
+static void createWidgets(void)
+{
+	bHeight = gdispGetFontMetric(font, fontHeight)+2;
 
-  /* On transfer end just releases the slave select line.*/
-  chSysLockFromIsr();
-  spiUnselectI(spip);
-  chSysUnlockFromIsr();
+	GWidgetInit	wi;
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.x = 0; wi.g.y = 0; wi.g.width = 320; wi.g.height = 240;
+	ghImage2 = gwinImageCreate(NULL, &wi.g);
+	gwinImageOpenMemory(ghImage2, Bibi);
+	gwinImageCache(ghImage2);
+
+	chThdSleepMilliseconds(1000);
+
+	wi.g.x = 0; wi.g.y = 0; wi.g.width = 320; wi.g.height = 240;
+	ghImage1 = gwinImageCreate(NULL, &wi.g);
+	gwinImageOpenMemory(ghImage1, uGFX);
+	gwinImageCache(ghImage1);
+
+	wi.g.y = 0;
+	wi.g.x = 200;
+	wi.g.width = 80;
+	wi.g.height = bHeight;
+	wi.text = "ADC Status";
+
+	ghADC = gwinLabelCreate(NULL, &wi);
+
+	//
+	wi.g.y = 0;
+	wi.g.x = 0;
+	wi.g.width = 100;
+	wi.g.height = bHeight;
+	wi.text = "ADC1:";
+
+	ghADC1 = gwinLabelCreate(NULL, &wi);
+
+	wi.g.y = 0;
+	wi.g.x = 40;
+	wi.g.width = 100;
+	wi.g.height = bHeight;
+	wi.text = "value";
+
+	ghADC1value = gwinLabelCreate(NULL, &wi);
+
+	//
+
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.y = bHeight;
+	wi.g.x = 0;
+	wi.g.width = 100;
+	wi.g.height = bHeight;
+	wi.text = "ADC2:";
+
+	ghADC2 = gwinLabelCreate(NULL, &wi);
+
+	//
+
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.y = bHeight*2;
+	wi.g.x = 0;
+	wi.g.width = 100;
+	wi.g.height = bHeight;
+	wi.text = "RPM:";
+
+	ghRPM = gwinLabelCreate(NULL, &wi);
+
+	//
+
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.y = bHeight*3;
+	wi.g.x = 0;
+	wi.g.width = 100;
+	wi.g.height = bHeight;
+	wi.text = "Speed:";
+
+	ghSpeed = gwinLabelCreate(NULL, &wi);
+
+	//
+
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.y = sheight-bHeight;
+	wi.g.x = 0;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "Status1";
+
+	ghStatus1 = gwinLabelCreate(NULL, &wi);
+
+	//
+
+	wi.customDraw = 0;
+	wi.customParam = 0;
+	wi.customStyle = 0;
+	wi.g.show = TRUE;
+
+	wi.g.y = sheight-bHeight;
+	wi.g.x = 160;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "Status2";
+
+	ghStatus2 = gwinLabelCreate(NULL, &wi);
+
+	//
+	wi.g.y = sheight-(bHeight*2);
+	wi.g.x = 0;
+	wi.g.width = swidth;
+	wi.g.height = bHeight;
+	wi.text = "Brightness";
+
+	ghBrightness = gwinSliderCreate(NULL, &wi);
+	gwinSliderSetRange(ghBrightness, 0, 100);
+	gwinSliderSetPosition(ghBrightness, 50);
+	gdispSetBacklight(50);
+
+	//
+	wi.g.y = sheight-(bHeight*3)-5;
+	wi.g.x = 0;
+	wi.g.width = swidth;
+	wi.g.height = bHeight;
+	wi.text = "Contrast";
+
+	ghContrast = gwinSliderCreate(NULL, &wi);
+	gwinSliderSetRange(ghContrast, 0, 100);
+	gwinSliderSetPosition(ghContrast, 50);
+	gdispSetContrast(50);
+	//
+
+	bWidth = gdispGetStringWidth("Start ADC", font);
+
+	wi.g.y = 20; //sheight-(bHeight*4);
+	wi.g.x = 150;
+	wi.g.width = bWidth+8;
+	wi.g.height = bHeight+4;
+	wi.text = "Start ADC";
+
+	ghStartADC = gwinButtonCreate(NULL, &wi);
+
+	//
+	bWidth = gdispGetStringWidth("Stop ADC", font);
+
+	wi.g.y = 20; //sheight-(bHeight*4);
+	wi.g.x = 150+bWidth+8+10;
+	wi.g.width = bWidth+8;
+	wi.g.height = bHeight+4;
+	wi.text = "Stop ADC";
+
+	ghStopADC = gwinButtonCreate(NULL, &wi);
+
+	wi.g.x = 150; wi.g.y = 40; wi.g.width = 97; wi.g.height = 23;
+	ghImage3 = gwinImageCreate(NULL, &wi.g);
+	gwinImageOpenMemory(ghImage3, ADCstart);
+	gwinImageCache(ghImage3);
 }
 
-/*
- * This is a periodic thread that does absolutely nothing except flashing
- * a LED.
- */
-static WORKING_AREA(waThread1, 128);
-static msg_t Thread1(void *arg) {
+static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
+{
+	/*
+    (void)instance;
+    (void)calbuf;
+    (void)sz;
+    memcpy(&t_calibration, calbuf, (uint8_t) sz);
+	*/
+	GFILE* f;
+	uint8_t bsize;
 
-  (void)arg;
-  chRegSetThreadName("blinker");
-  while (TRUE) {
-    palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
-    chThdSleepMilliseconds(500);
-    palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
-    chThdSleepMilliseconds(500);
-  }
+	(void)instance;
+
+	bsize = (uint8_t)sz;
+
+	f = gfileOpen("calib.gfx", "w");
+	gfileWrite(f, (void*)&bsize, 1);
+	gfileWrite(f, (void*)calbuf, bsize);
+	gfileClose(f);
+
+	chprintf( (BaseSequentialStream *)&SD2, "%s\r\n", calbuf );
+	chprintf( (BaseSequentialStream *)&SD2, "%i\r\n", bsize );
+}
+
+	static const char *myload(uint16_t instance)
+	{
+		GFILE* f;
+		char* buf;
+		uint8_t bsize;
+
+		(void)instance;
+
+		f = gfileOpen("calib.gfx", "r");
+
+		gfileRead(f, (void*)&bsize, 1);
+		buf = gfxAlloc(bsize);
+		gfileRead(f, (void*)buf, bsize);
+
+		gfileClose(f);
+
+		return ("=\136\004k:-\158c\193\145#\245\186E\158b\189\185\252\238C\178IH"); //("\189\51\133\61\247\38\156\56\75\211\99\193\117\45\54\58\205\144\187\189\10\135\176\67\240\15\00\32");
+	}
+
+static void bootScreen(void)
+{
+	  /* enyém */
+	  width = gdispGetWidth();
+	  height = gdispGetHeight();
+
+	  swidth = gdispGetWidth();
+	  sheight = gdispGetHeight();
+
+		// Create our title
+	  gwinAttachMouse(0);
+
+		font = gdispOpenFont("UI2");
+		gwinSetDefaultFont(font);
+		gwinSetDefaultBgColor(Black);
+		gwinSetDefaultColor(White);
+		bHeight = gdispGetFontMetric(font, fontHeight)+2;
+		gdispFillStringBox(0, 0, swidth, bHeight, "Boot", font, Red, White, justifyLeft);
+
+		// Create our main display window
+		{
+			GWindowInit				wi;
+
+			gwinClearInit(&wi);
+			wi.show = TRUE;
+			wi.x = 0;
+			wi.y = bHeight;
+			wi.width = swidth;
+			wi.height = height-bHeight;
+			ghc = gwinConsoleCreate(&gc, &wi);
+		}
+
+		//gwinClear(ghc);
+		pem = (GEventMouse *)&gl.event;
+		while (pem->meta & GMETA_MOUSE_UP);
+		gwinPrintf(ghc, "Boot finished.\n");
 }
 
 /*
@@ -178,68 +404,112 @@ int main(void) {
   halInit();
   chSysInit();
 
+  adcStart(&ADCD1, NULL);
+  adcSTM32EnableTSVREFE();
+  palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
+
   /*
-   * Activates the serial driver 2 using the driver default configuration.
+   * Activates the serial driver 1 using the driver default configuration.
    * PA2(TX) and PA3(RX) are routed to USART2.
    */
   sdStart(&SD2, NULL);
   palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
   palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
 
+  /* initialize and clear the display */
+  gfxInit();
+
+  mouse = ginputGetMouse(0);
+  ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
+  mouse = ginputGetMouse(0);
+
+  //geventListenerInit(&me);
+  //geventAttachSource(&me, mouse, GLISTEN_MOUSEDOWNMOVES | GLISTEN_MOUSEMETA);
+
+  bootScreen();
+  gwinSetColor(ghc, White);
+  gwinPrintf(ghc, "Calibartion finished.\n");
+  gwinPrintf(ghc, "Starting USART2.\n");
+
   /*
    * If the user button is pressed after the reset then the test suite is
    * executed immediately before activating the various device drivers in
    * order to not alter the benchmark scores.
    */
-  if (palReadPad(GPIOA, GPIOA_BUTTON))
-    TestThread(&SD2);
-
-  /*
-   * Initializes the SPI driver 2. The SPI2 signals are routed as follow:
-   * PB12 - NSS.
-   * PB13 - SCK.
-   * PB14 - MISO.
-   * PB15 - MOSI.
-   */
-  spiStart(&SPID2, &spi2cfg);
-  palSetPad(GPIOB, 12);
-  palSetPadMode(GPIOB, 12, PAL_MODE_OUTPUT_PUSHPULL |
-                           PAL_STM32_OSPEED_HIGHEST);           /* NSS.     */
-  palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) |
-                           PAL_STM32_OSPEED_HIGHEST);           /* SCK.     */
-  palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));              /* MISO.    */
-  palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5) |
-                           PAL_STM32_OSPEED_HIGHEST);           /* MOSI.    */
-
-  /*
-   * Initializes the ADC driver 1 and enable the thermal sensor.
-   * The pin PC1 on the port GPIOC is programmed as analog input.
-   */
-  adcStart(&ADCD1, NULL);
-  adcSTM32EnableTSVREFE();
-  palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
-
-  /*
-   * Initializes the PWM driver 4, routes the TIM4 outputs to the board LEDs.
-   */
-  pwmStart(&PWMD4, &pwmcfg);
-  palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_ALTERNATE(2));  /* Green.   */
-  palSetPadMode(GPIOD, GPIOD_LED6, PAL_MODE_ALTERNATE(2));  /* Blue.    */
+  //if (palReadPad(GPIOA, GPIOA_BUTTON))
+  //  TestThread(&SD2);
 
   /*
    * Creates the example thread.
    */
+  gwinPrintf(ghc, "Create waThread1\n");
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
-
   /*
    * Normal main() thread activity, in this demo it does nothing except
    * sleeping in a loop and check the button state, when the button is
    * pressed the test procedure is launched with output on the serial
    * driver 2.
    */
-  while (TRUE) {
-    if (palReadPad(GPIOA, GPIOA_BUTTON))
-      TestThread(&SD2);
-    chThdSleepMilliseconds(500);
+
+  /*
+   * Initializes the ADC driver 1 and enable the thermal sensor.
+   * The pin PC1 on the port GPIOC is programmed as analog input.
+   */
+
+  gwinPrintf(ghc, "ADC start\r\n");
+
+  //chThdSleepMilliseconds(5000);
+
+  gwinSetDefaultFont(gdispOpenFont("UI2"));
+  gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
+  gdispClear(White);
+  createWidgets();
+  geventListenerInit(&gl);
+  gwinAttachListener(&gl);
+
+  chprintf( (BaseSequentialStream *)&SD2, "Main loop\r\n", NULL );
+
+  while (TRUE)
+  {
+	  //get an event
+	  pe = geventEventWait(&gl, TIME_INFINITE);
+
+	  switch(pe->type) {
+
+	  	  case GEVENT_GWIN_BUTTON:
+	  		   	   if (((GEventGWinButton*)pe)->button == ghStartADC)
+	  		   	   	   {
+	  		   		   	   gwinSetText(ghStatus2, "ADC start", TRUE);
+	  		   		   	   //chSysLockFromIsr();
+	  		   		   	   //adcStartConversionI(&ADCD1, &adcgrpcfg, samples, ADC_GRP1_BUF_DEPTH);
+	  		   		   	   //chSysUnlockFromIsr();
+	  		   		   	   chprintf( (BaseSequentialStream *)&SD2, "\r\nADC start", NULL );
+	  		   	   	   };
+	  		   	   if (((GEventGWinButton*)pe)->button == ghStopADC)
+	  		   	   	   {
+	  		   		  	   gwinSetText(ghStatus2, "ADC stop", TRUE);
+	  		   		  	   gwinSetText(ghADC, "Waiting", TRUE);
+	  		   		  	   chprintf( (BaseSequentialStream *)&SD2, "\r\nADC stop", NULL );
+	  		   	   	   };
+	  		   	   break;
+	  	  case GEVENT_GWIN_SLIDER:
+	  		  	  if (((GEventGWinSlider*)pe)->slider == ghBrightness)
+	  		  	  {
+	  	  	  	  	  gdispSetBacklight(((GEventGWinSlider *)pe)->position);
+	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->slider),
+	  		  	  	                                                           ((GEventGWinSlider *)pe)->position);
+	  		  	  }
+	  		  	  if (((GEventGWinSlider*)pe)->slider == ghContrast)
+	  		  	  {
+	  	  	  	  	  gdispSetContrast(((GEventGWinSlider *)pe)->position);
+	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->slider),
+	  		  	  	                                                           ((GEventGWinSlider *)pe)->position);
+	  		  	  }
+	  		  	   break;
+				default:
+				   break ;
+	  }
+		//chThdSleepMilliseconds(500);
   }
 }
+
