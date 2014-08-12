@@ -29,7 +29,6 @@
 #include "myADC.h"
 #include "gfx.h"
 #include "main.h"
-#include "myFunc.h"
 #include "aprilia.h"
 #include "Aprilia-4.h"
 #include "console.h"
@@ -53,9 +52,9 @@ static GHandle					ghApriliaLogo, ghAprilia;
 //static GSourceHandle			gs;
 static GHandle					ghStatus1, ghStatus2;
 static GHandle					ghConsole;
-static GHandle					ghbConsole;
 static GHandle					ADClabel, ADClabel2;
 static GHandle					ADCvalue, ADCvalue2;
+static GHandle					ICU1label, ICU1value;
 static coord_t 					width, height;
 static coord_t					bHeight, bWidth;
 static coord_t					swidth, sheight;
@@ -68,6 +67,11 @@ uint32_t 						sum;
 uint8_t							ADC2status;
 char							Result[6];
 uint16_t 						j;
+
+/* ICU variables
+ *
+ */
+icucnt_t last_width, last_period;
 
 /*
  * Internal Reference Voltage, according to ST this is 1.21V typical
@@ -95,6 +99,44 @@ static adcsample_t samples1[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
 #define ADC_GRP2_NUM_CHANNELS   2
 #define ADC_GRP2_BUF_DEPTH      512
 static adcsample_t samples2[ADC_GRP2_NUM_CHANNELS * ADC_GRP2_BUF_DEPTH];
+
+/* ICU part
+ *
+ *
+ */
+static void icuwidthcb(ICUDriver *icup) {
+
+  palSetPad(GPIOD, GPIOD_LED4);
+  last_width = icuGetWidth(icup);
+}
+
+static void icuperiodcb(ICUDriver *icup) {
+
+  palClearPad(GPIOD, GPIOD_LED4);
+  last_period = icuGetPeriod(icup);
+}
+
+static ICUConfig icucfg = {
+  ICU_INPUT_ACTIVE_HIGH,
+  10000,                                    /* 10kHz ICU clock frequency.   */
+  icuwidthcb,
+  icuperiodcb,
+  NULL,
+  ICU_CHANNEL_1,
+  0
+};
+
+void ICUinit(void)
+{
+	  icuStart(&ICUD5, &icucfg);
+	  palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(2));
+	  icuEnable(&ICUD5);
+	  chThdSleepMilliseconds(500);
+}
+/* End of ICU part
+ *
+ *
+ */
 
 static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
 	(void)adcp;
@@ -459,6 +501,24 @@ static void createWidgets(void)
 	*/
 }
 
+static WORKING_AREA(waThread1, 1024);
+static msg_t Thread1(void *arg) {
+
+  (void)arg;
+  chRegSetThreadName("blinker");
+  while (TRUE) {
+    palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
+    chThdSleepMilliseconds(500);
+    palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
+    chThdSleepMilliseconds(500);
+  }
+  return 0;
+}
+
+void startBlinker(void){
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+}
+
 /*
  * Application entry point.
  */
@@ -493,7 +553,7 @@ int main(void) {
   startBlinker();
 
   myADCinit();
-
+  ICUinit();
   /*
    * Activates the serial driver 1 using the driver default configuration.
    * PA2(TX) and PA3(RX) are routed to USART2.
@@ -511,7 +571,7 @@ int main(void) {
    * driver 2.
    */
 
-  //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
+  ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
   //mouse = ginputGetMouse(0);
 
   font = gdispOpenFont("UI2");

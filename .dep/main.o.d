@@ -37,10 +37,11 @@ build/obj/main.o: main.c ../../os/kernel/include/ch.h chconf.h \
  ../../os/hal/include/adc.h ../../os/hal/platforms/STM32F4xx/adc_lld.h \
  ../../os/hal/include/can.h ../../os/hal/include/ext.h \
  ../../os/hal/include/gpt.h ../../os/hal/include/i2c.h \
- ../../os/hal/include/icu.h ../../os/hal/include/mac.h \
- ../../os/hal/include/pwm.h ../../os/hal/platforms/STM32/TIMv1/pwm_lld.h \
+ ../../os/hal/include/icu.h ../../os/hal/platforms/STM32/TIMv1/icu_lld.h \
  ../../os/hal/platforms/STM32/TIMv1/stm32_tim.h \
- ../../os/hal/include/rtc.h ../../os/hal/include/serial.h \
+ ../../os/hal/include/mac.h ../../os/hal/include/pwm.h \
+ ../../os/hal/platforms/STM32/TIMv1/pwm_lld.h ../../os/hal/include/rtc.h \
+ ../../os/hal/include/serial.h \
  ../../os/hal/platforms/STM32/USARTv1/serial_lld.h \
  ../../os/hal/include/sdc.h ../../os/hal/include/spi.h \
  ../../os/hal/platforms/STM32/SPIv1/spi_lld.h ../../os/hal/include/uart.h \
@@ -112,8 +113,8 @@ build/obj/main.o: main.c ../../os/kernel/include/ch.h chconf.h \
  /home/makkmarci/devel/ugfx/src/ginput/toggle.h \
  /home/makkmarci/devel/ugfx/src/ginput/dial.h \
  /home/makkmarci/devel/ugfx/src/gadc/sys_defs.h \
- /home/makkmarci/devel/ugfx/src/gaudio/sys_defs.h main.h myFunc.h \
- aprilia.h Aprilia-4.h console.h
+ /home/makkmarci/devel/ugfx/src/gaudio/sys_defs.h main.h aprilia.h \
+ Aprilia-4.h console.h
 
 ../../os/kernel/include/ch.h:
 
@@ -239,13 +240,15 @@ mcuconf.h:
 
 ../../os/hal/include/icu.h:
 
+../../os/hal/platforms/STM32/TIMv1/icu_lld.h:
+
+../../os/hal/platforms/STM32/TIMv1/stm32_tim.h:
+
 ../../os/hal/include/mac.h:
 
 ../../os/hal/include/pwm.h:
 
 ../../os/hal/platforms/STM32/TIMv1/pwm_lld.h:
-
-../../os/hal/platforms/STM32/TIMv1/stm32_tim.h:
 
 ../../os/hal/include/rtc.h:
 
@@ -410,8 +413,6 @@ gdisp_lld_config.h:
 /home/makkmarci/devel/ugfx/src/gaudio/sys_defs.h:
 
 main.h:
-
-myFunc.h:
 
 aprilia.h:
 
