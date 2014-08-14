@@ -48,15 +48,15 @@ static GHandle					ghApriliaLogo, ghAprilia;
 static GEventMouse				*pem;
 static GEvent*					pe;
 static GListener				gl;
-static GSourceHandle 			mouse;
-static GSourceHandle			gs, gsBrightness, gsConsole;
+//static GSourceHandle 			mouse;
+//static GSourceHandle			gs, gsBrightness, gsConsole;
 static GHandle					ghc;
 static GHandle					ghStatus1, ghStatus2;
 static GHandle					ghConsole;
 static GHandle					ghBrightness;
 static GHandle					ADClabel, ADClabel2;
 static GHandle					ADCvalue, ADCvalue2;
-static GHandle					ICU1label, ICU1value;
+static GHandle					ICU1label, ICU1value, ICU2label, ICU2value;
 static coord_t 					width, height;
 static coord_t					bHeight, bWidth;
 static coord_t					swidth, sheight;
@@ -73,7 +73,7 @@ uint16_t 						j;
 /* ICU variables
  *
  */
-icucnt_t last_width, last_period;
+icucnt_t last_width, last_period, last_width_2, last_period_2;
 
 /*
  * Internal Reference Voltage, according to ST this is 1.21V typical
@@ -108,14 +108,22 @@ static adcsample_t samples2[ADC_GRP2_NUM_CHANNELS * ADC_GRP2_BUF_DEPTH];
  */
 static void icuwidthcb(ICUDriver *icup) {
 
-  palSetPad(GPIOD, GPIOD_LED4);
   last_width = icuGetWidth(icup);
 }
 
 static void icuperiodcb(ICUDriver *icup) {
 
-  palClearPad(GPIOD, GPIOD_LED4);
   last_period = icuGetPeriod(icup);
+}
+
+static void icuwidthcb2(ICUDriver *icup) {
+
+  last_width_2 = icuGetWidth(icup);
+}
+
+static void icuperiodcb2(ICUDriver *icup) {
+
+  last_period_2 = icuGetPeriod(icup);
 }
 
 static ICUConfig icucfg = {
@@ -128,11 +136,24 @@ static ICUConfig icucfg = {
   0
 };
 
+static ICUConfig icucfg2 = {
+  ICU_INPUT_ACTIVE_HIGH,
+  100000,                                    /* 10kHz ICU clock frequency.   */
+  icuwidthcb2,
+  icuperiodcb2,
+  NULL,
+  ICU_CHANNEL_2,
+  0
+};
+
 void ICUinit(void)
 {
 	  icuStart(&ICUD5, &icucfg);
+	  icuStart(&ICUD2, &icucfg2);
 	  palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2));
+	  palSetPadMode(GPIOB, 3, PAL_MODE_ALTERNATE(2)); //TIM2_CH2
 	  icuEnable(&ICUD5);
+	  icuEnable(&ICUD2);
 	  chThdSleepMilliseconds(500);
 }
 /* End of ICU part
@@ -294,13 +315,18 @@ void readVoltage(void)
 void readICU(void)
 {
 	uint16_t last_period_float;
+	uint16_t last_period_float_2;
 	//last_period_float = last_period;
 	//last_period_float /= 1000;
 	//last_period_float = 1/last_period_float;
 	last_period_float = RTT2US(last_period);
+	last_period_float_2 = RTT2US(last_period_2);
 	sprintf(Result, "%u", last_period_float);
 	gwinSetText(ICU1value, Result, TRUE);
 	chprintf((BaseSequentialStream *)&SD2, "\r\nICU1 %d", last_period);
+	sprintf(Result, "%u", last_period_float_2);
+	gwinSetText(ICU2value, Result, TRUE);
+	chprintf((BaseSequentialStream *)&SD2, "\r\nICU2 %d", last_period_2);
 }
 
 static WORKING_AREA(waThread2, 2048);
@@ -432,7 +458,6 @@ static void createWidgets(void)
 	wi.g.show = TRUE;
 
 	// create ICU1label
-	//status 1
 	wi.g.y = bHeight*2;
 	wi.g.x = 0;
 	wi.g.width = 160;
@@ -440,6 +465,7 @@ static void createWidgets(void)
 	wi.text = "ICU1:";
 
 	ICU1label = gwinLabelCreate(NULL, &wi);
+
 
 	// ICU1vaule
 	wi.g.y = bHeight*2;
@@ -449,6 +475,25 @@ static void createWidgets(void)
 	wi.text = "Status2";
 
 	ICU1value = gwinLabelCreate(NULL, &wi);
+
+	// create ICU2label
+
+	wi.g.y = bHeight*3;
+	wi.g.x = 0;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "ICU2:";
+
+	ICU2label = gwinLabelCreate(NULL, &wi);
+
+	// ICU2vaule
+	wi.g.y = bHeight*3;
+	wi.g.x = 40;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "000";
+
+	ICU2value = gwinLabelCreate(NULL, &wi);
 
 	// create two status label
 	//status 1
@@ -579,7 +624,7 @@ int main(void) {
 
   /* initialize and clear the display */
   gfxInit();
-  mouse = ginputGetMouse(0);
+  ginputGetMouse(0);
   gwinAttachMouse(0);
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
