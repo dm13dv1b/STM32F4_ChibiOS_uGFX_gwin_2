@@ -1,5 +1,4 @@
-/**
- * This file has a different license to the rest of the uGFX system.
+/* This file has a different license to the rest of the uGFX system.
  * You can copy, modify and distribute this file as you see fit.
  * You do not need to publish your source modifications to this file.
  * The only thing you are not permitted to do is to relicense it

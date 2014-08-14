@@ -39,19 +39,21 @@
 
 //#ifdef BOOTSCREEN
 //static GConsoleObject			gc;
-static GHandle					ghc;
 //#endif
 
-//static GSourceHandle 			mouse;
 #ifdef LOGO
 static GHandle					ghApriliaLogo, ghAprilia;
 #endif
-//static GEventMouse				*pem;
-//static GEvent*					pe;
-//static GListener				gl;
-//static GSourceHandle			gs;
+
+static GEventMouse				*pem;
+static GEvent*					pe;
+static GListener				gl;
+static GSourceHandle 			mouse;
+static GSourceHandle			gs, gsBrightness, gsConsole;
+static GHandle					ghc;
 static GHandle					ghStatus1, ghStatus2;
 static GHandle					ghConsole;
+static GHandle					ghBrightness;
 static GHandle					ADClabel, ADClabel2;
 static GHandle					ADCvalue, ADCvalue2;
 static GHandle					ICU1label, ICU1value;
@@ -118,7 +120,7 @@ static void icuperiodcb(ICUDriver *icup) {
 
 static ICUConfig icucfg = {
   ICU_INPUT_ACTIVE_HIGH,
-  10000,                                    /* 10kHz ICU clock frequency.   */
+  100000,                                    /* 10kHz ICU clock frequency.   */
   icuwidthcb,
   icuperiodcb,
   NULL,
@@ -129,7 +131,7 @@ static ICUConfig icucfg = {
 void ICUinit(void)
 {
 	  icuStart(&ICUD5, &icucfg);
-	  palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(2));
+	  palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2));
 	  icuEnable(&ICUD5);
 	  chThdSleepMilliseconds(500);
 }
@@ -250,15 +252,9 @@ void readADC(void)
 	  sprintf ( Result2, ".%iV", (uint16_t)sum%10000 );
 	  strncat(Result, Result2, 6);
 
-//	  sprintf ( Result, "%i", (uint16_t)sum/10000 );
-	  gwinSetText(ghStatus1, Result, TRUE);
-//	  sprintf ( Result, "%i", (uint16_t)sum%10000 );
-//	  gwinSetText(ghStatus2, Result, TRUE);
-	  //memset (Result, 0, sizeof(Result));
-	  //uitoa(sum, Result, sizeof(Result));
 	  gwinSetText(ADCvalue, Result, TRUE);
 	  //prints the averaged value with 4 digits precision
-	  chprintf((BaseSequentialStream *)&SD2, "Measured: %U.%04UV\r\n", sum/10000, sum%10000);
+	  chprintf((BaseSequentialStream *)&SD2, "\r\nMeasured: %U.%04UV", sum/10000, sum%10000);
 	/*
 	i = avg;
 	sprintf ( Result, "%i", i ); // %d makes the result be a decimal integer
@@ -287,7 +283,7 @@ void readVoltage(void)
 	  sum /= ADC_GRP2_BUF_DEPTH;
 
 	  thisTemp = (((int64_t)sum)*VREFINT*400/VREFMeasured-30400)+2500;
-	  chprintf((BaseSequentialStream *)&SD2, "Temperatur: %d.%2U°C\r\n", thisTemp/100,thisTemp%100);
+	  chprintf((BaseSequentialStream *)&SD2, "\r\nTemperature: %d.%2U°C", thisTemp/100,thisTemp%100);
 
 	  sprintf(Result, "%d", (uint8_t)thisTemp/100);
 	  sprintf(Result2, ".%iC", (uint8_t)thisTemp%100);
@@ -295,6 +291,17 @@ void readVoltage(void)
 	  gwinSetText(ADCvalue2, Result, TRUE);
 }
 
+void readICU(void)
+{
+	uint16_t last_period_float;
+	//last_period_float = last_period;
+	//last_period_float /= 1000;
+	//last_period_float = 1/last_period_float;
+	last_period_float = RTT2US(last_period);
+	sprintf(Result, "%u", last_period_float);
+	gwinSetText(ICU1value, Result, TRUE);
+	chprintf((BaseSequentialStream *)&SD2, "\r\nICU1 %d", last_period);
+}
 
 static WORKING_AREA(waThread2, 2048);
 static msg_t Thread2(void *arg) {
@@ -303,16 +310,17 @@ static msg_t Thread2(void *arg) {
   chRegSetThreadName("ADC blinker");
   while (TRUE) {
 #ifdef DEBUG_TO_SERIAL
-  chprintf( (BaseSequentialStream *)&SD2, "ADC sampling\r\n", NULL );
+  chprintf( (BaseSequentialStream *)&SD2, "\r\nADC sampling", NULL );
 #endif
   if (console == 1)
   {
-	  gwinPrintf(ghc, "ADC sampling\r\n");
+	  gwinPrintf(ghc, "\r\nADC sampling");
   }
   palTogglePad(GPIOD, GPIOD_LED4);       /* Orange.  */
   chSysLockFromIsr();
     readADC();
     readVoltage();
+    readICU();
   chSysUnlockFromIsr();
   chThdSleepMilliseconds(1000);
   }
@@ -423,11 +431,30 @@ static void createWidgets(void)
 	wi.customStyle = 0;
 	wi.g.show = TRUE;
 
+	// create ICU1label
+	//status 1
+	wi.g.y = bHeight*2;
+	wi.g.x = 0;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "ICU1:";
+
+	ICU1label = gwinLabelCreate(NULL, &wi);
+
+	// ICU1vaule
+	wi.g.y = bHeight*2;
+	wi.g.x = 40;
+	wi.g.width = 160;
+	wi.g.height = bHeight;
+	wi.text = "Status2";
+
+	ICU1value = gwinLabelCreate(NULL, &wi);
+
 	// create two status label
 	//status 1
 	wi.g.y = sheight-bHeight;
 	wi.g.x = 0;
-	wi.g.width = 160;
+	wi.g.width = 50;
 	wi.g.height = bHeight;
 	wi.text = "Status1";
 
@@ -436,11 +463,23 @@ static void createWidgets(void)
 	// status 2
 	wi.g.y = sheight-bHeight;
 	wi.g.x = 160;
-	wi.g.width = 160;
+	wi.g.width = 50;
 	wi.g.height = bHeight;
 	wi.text = "Status2";
 
 	ghStatus2 = gwinLabelCreate(NULL, &wi);
+
+	// Brightness
+	wi.g.y = sheight-(bHeight*2);
+	wi.g.x = 0;
+	wi.g.width = swidth;
+	wi.g.height = bHeight;
+	wi.text = "Brightness";
+
+	ghBrightness = gwinSliderCreate(NULL, &wi);
+	gwinSliderSetRange(ghBrightness, 0, 100);
+	gwinSliderSetPosition(ghBrightness, 50);
+	gdispSetBacklight(50);
 
 	// create ADC label
 	// ADClabel1
@@ -508,8 +547,10 @@ static msg_t Thread1(void *arg) {
   chRegSetThreadName("blinker");
   while (TRUE) {
     palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
+    gwinSetText(ghStatus1, "Running", TRUE);
     chThdSleepMilliseconds(500);
     palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
+    gwinSetText(ghStatus1, "        ", TRUE);
     chThdSleepMilliseconds(500);
   }
   return 0;
@@ -536,12 +577,15 @@ int main(void) {
 
   ADC2status = 0;
 
-  //adcStart(&ADCD1, NULL);
-  //adcSTM32EnableTSVREFE();
-  //palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
-
   /* initialize and clear the display */
   gfxInit();
+  mouse = ginputGetMouse(0);
+  gwinAttachMouse(0);
+  geventListenerInit(&gl);
+  gwinAttachListener(&gl);
+  //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
+
+
   //mouse = ginputGetMouse(0);
   //get screen size
   width = gdispGetWidth();
@@ -563,13 +607,6 @@ int main(void) {
   palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
 
   chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
-
-  /*
-   * Normal main() thread activity, in this demo it does nothing except
-   * sleeping in a loop and check the button state, when the button is
-   * pressed the test procedure is launched with output on the serial
-   * driver 2.
-   */
 
   ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
   //mouse = ginputGetMouse(0);
@@ -594,34 +631,53 @@ int main(void) {
 
   chprintf( (BaseSequentialStream *)&SD2, "Main loop\r\n", NULL );
 
-  //geventListenerInit(&gl);
-  //gwinAttachListener(&gl);
-
   while (TRUE)
   {
-	  /*
-	  pe = geventEventWait(&gl, TIME_INFINITE);
-	  switch(pe->type) {
-	  case GEVENT_GWIN_BUTTON:
+	  //get an event
+
+	  	  pe = geventEventWait(&gl, TIME_INFINITE);
+
+	  	  switch(pe->type) {
+	  	  	  case GEVENT_TOUCH:
+	  		  		  	  	  	  {
+	  		  		  	  	  	  	  pem = (GEventMouse *)pe;
+	  		  		  	  	  	  	  if ((pem->meta & GMETA_MOUSE_CLICK)) {
+	  		  		  	  	  					//gwinSetColor(ghc, Yellow);
+	  		  		  	  	  					chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
+	  		  		  	  	  				}
+	  		  		  	  	  	  }
+
+
+	  	  	  case GEVENT_GWIN_BUTTON:
 	  	  		   	   if (((GEventGWinButton*)pe)->button == ghConsole)
 	  	  		   	   	   {
 	  	  		   		   	   gwinSetText(ghStatus2, "Console", TRUE);
-	  	  		   		   	   	   CreateConsole();
-	  	  		   		   	   chprintf( (BaseSequentialStream *)&SD2, "Create console\r\n", NULL );
-	  	  		   	   	   }; break;
-	  default:
-		  break;
-	  }
-	  */
-	  /*
-		pem = (GEventMouse *)geventEventWait(&gl, TIME_INFINITE);
-			if (pem->y < sheight && pem->x >= swidth) {
-				if ((pem->meta & GMETA_MOUSE_UP)) {
-					CreateConsole();
-				}
-			}
-			*/
-	  chThdSleepMilliseconds(500);
+	  	  		   		   	   chprintf( (BaseSequentialStream *)&SD2, "\r\nConsole button", NULL );
+	  	  		   	   	   };
+	  	  		   	   break;
+
+	  	  	  case GEVENT_GWIN_SLIDER:
+	  	  		  	  if (((GEventGWinSlider*)pe)->slider == ghBrightness)
+	  	  		  	  {
+	  	  	  	  	  	  gdispSetBacklight(((GEventGWinSlider *)pe)->position);
+	  	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->slider),
+	  	  		  	  	                                                           ((GEventGWinSlider *)pe)->position);
+	  	  		  	  }
+	  	  		  	   break;
+	  		  default:
+	  				   break ;
+	  	  }
+	  	  /*
+	  	  pem = (GEventMouse *)&gl.event;
+
+	  	  if ((pem->y < bHeight) && (pem->x < swidth))
+	  	  {
+	  		if ((pem->meta & GMETA_MOUSE_UP))
+	  		{
+	  			chprintf( (BaseSequentialStream *)&SD2, "\r\nScreen touch", NULL );
+	  		}
+	  	  }*/
+	  //chThdSleepMilliseconds(500);
   }
 }
 
