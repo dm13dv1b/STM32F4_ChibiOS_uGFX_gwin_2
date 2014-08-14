@@ -8,7 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#define DEBUG_TO_SERIAL
+//#define DEBUG_TO_SERIAL
 #define BOOTSCREEN			TRUE
 //#define LOGO
 

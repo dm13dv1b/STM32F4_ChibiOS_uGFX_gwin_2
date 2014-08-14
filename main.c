@@ -104,6 +104,64 @@ static adcsample_t samples1[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
 #define ADC_GRP2_BUF_DEPTH      512
 static adcsample_t samples2[ADC_GRP2_NUM_CHANNELS * ADC_GRP2_BUF_DEPTH];
 
+/* Serial console variables
+ *
+ */
+#define SHELL_WA_SIZE	THD_WA_SIZE(1024)
+Thread *shelltp0 = NULL;
+
+void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
+  (void)argv;
+  (void)argc;
+  size_t n, size;
+  n=chCoreStatus();
+  chprintf(chp, "Free: ");
+  if (n<500) {
+	  chprintf(chp, "%s", "\e[1;30;41m");
+  }
+  chprintf(chp,"%9u",n);
+  if (n<500) {
+	  chprintf(chp, "%s", "\e[0m\r\n");
+  }
+  n = chHeapStatus(NULL, &size);
+  chprintf(chp,"\r\n");
+  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+  chprintf(chp, "heap fragments   : %u\r\n", n);
+  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+}
+
+void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
+  static const char *states[] = {THD_STATE_NAMES};
+  Thread *tp;
+
+  (void)argv;
+  (void)argc;
+
+  chprintf(chp, "%s", "\e[1;30;41m");
+  chprintf(chp, "%15s%10s%10s%15s","name","priority","state","time");
+  chprintf(chp, "%s", "\e[0m\r\n");
+  tp = chRegFirstThread();
+  do {
+    chprintf(chp, "%15s%10lu%10s%15lu\r\n",
+             (uint32_t)tp->p_name,
+             (uint32_t)tp->p_prio,
+             states[tp->p_state],
+             (uint32_t)tp->p_time);
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
+}
+
+static const ShellCommand shCmds[] = {
+		{"mem", cmd_mem},
+		{"threads", cmd_threads},
+		{NULL, NULL}
+};
+
+static const ShellConfig shCfg = {
+		(BaseSequentialStream *)&SD2,
+		shCmds
+};
+
 /* ICU part
  *
  *
@@ -230,7 +288,9 @@ void readADC(void)
 
 	  gwinSetText(ADCvalue, Result, TRUE);
 	  //prints the averaged value with 4 digits precision
+#ifdef DEBUG_TO_SERIAL
 	  chprintf((BaseSequentialStream *)&SD2, "\r\nMeasured: %U.%04UV", sum/10000, sum%10000);
+#endif
 }
 
 void readVoltage(void)
@@ -249,8 +309,9 @@ void readVoltage(void)
 	  sum /= ADC_GRP2_BUF_DEPTH;
 
 	  thisTemp = (((int64_t)sum)*VREFINT*400/VREFMeasured-30400)+2500;
+#ifdef DEBUG_TO_SERIAL
 	  chprintf((BaseSequentialStream *)&SD2, "\r\nTemperature: %d.%2U°C", thisTemp/100,thisTemp%100);
-
+#endif
 	  sprintf(Result, "%d", (uint8_t)thisTemp/100);
 	  sprintf(Result2, ".%iC", (uint8_t)thisTemp%100);
 	  strncat(Result, Result2, 6);
@@ -261,17 +322,19 @@ void readICU(void)
 {
 	uint16_t last_period_float;
 	uint16_t last_period_float_2;
-	//last_period_float = last_period;
-	//last_period_float /= 1000;
-	//last_period_float = 1/last_period_float;
+
 	last_period_float = RTT2US(last_period);
 	last_period_float_2 = RTT2US(last_period_2);
 	sprintf(Result, "%u", last_period_float);
 	gwinSetText(ICU1value, Result, TRUE);
+#ifdef DEBUG_TO_SERIAL
 	chprintf((BaseSequentialStream *)&SD2, "\r\nICU1 %d", last_period);
+#endif
 	sprintf(Result, "%u", last_period_float_2);
 	gwinSetText(ICU2value, Result, TRUE);
+#ifdef DEBUG_TO_SERIAL
 	chprintf((BaseSequentialStream *)&SD2, "\r\nICU2 %d", last_period_2);
+#endif
 }
 
 void ConsoleInit(void)
@@ -305,8 +368,6 @@ void defaultsInit(void)
 	  sheight = gdispGetHeight();
 	  font = gdispOpenFont("UI2");
 	  gwinSetDefaultFont(font);
-	  //gwinSetDefaultBgColor(Black);
-	  //gwinSetDefaultColor(White);
 	  bHeight = gdispGetFontMetric(font, fontHeight)+2;
 }
 
@@ -314,7 +375,7 @@ static WORKING_AREA(waThread1, 1024);
 static msg_t Thread1(void *arg) {
 
   (void)arg;
-  chRegSetThreadName("blinker");
+  chRegSetThreadName("Blinker");
   while (TRUE) {
     palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
     gwinSetText(ghStatus1, "Running", TRUE);
@@ -329,8 +390,11 @@ static msg_t Thread1(void *arg) {
 static WORKING_AREA(waThread2, 2048);
 static msg_t Thread2(void *arg) {
 
+	char sys_time[10];
+	uint16_t sys_t;
+
   (void)arg;
-  chRegSetThreadName("ADC blinker");
+  chRegSetThreadName("Reader");
   while (TRUE) {
 #ifdef DEBUG_TO_SERIAL
   chprintf( (BaseSequentialStream *)&SD2, "\r\nADC sampling", NULL );
@@ -345,6 +409,9 @@ static msg_t Thread2(void *arg) {
     readVoltage();
     readICU();
   chSysUnlockFromIsr();
+  sys_t = chTimeNow()/1000;
+  sprintf(sys_time, "%i", sys_t);
+  gwinSetText(ghStatus2, sys_time, TRUE);
   chThdSleepMilliseconds(1000);
   }
   return 0;
@@ -570,6 +637,7 @@ static void createWidgets(void)
 void startThreads(void){
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
   chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
+  shelltp0 = shellCreate(&shCfg, SHELL_WA_SIZE, NORMALPRIO);
 }
 
 /*
@@ -596,6 +664,10 @@ int main(void) {
   ICUinit();
   ConsoleInit();
 
+  shellInit();
+
+  startThreads();
+
 #if BOOTSCREEN
   bootScreen();
 #endif
@@ -605,12 +677,8 @@ int main(void) {
   CreateLogo();
 #endif
 
-  startThreads();
-
   // create main screen
   createWidgets();
-
-  chprintf( (BaseSequentialStream *)&SD2, "\r\nMain loop", NULL );
 
   while (TRUE)
   {

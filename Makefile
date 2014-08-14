@@ -97,6 +97,7 @@ CSRC = $(PORTSRC) \
        $(GFXSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/shell.c \
        sram.c \
        main.c 
        
