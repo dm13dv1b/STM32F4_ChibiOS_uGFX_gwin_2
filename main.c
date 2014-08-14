@@ -29,6 +29,7 @@
 #include "myADC.h"
 #include "gfx.h"
 #include "main.h"
+#include "sram.h"
 #include "aprilia.h"
 #include "Aprilia-4.h"
 #include "console.h"
@@ -386,38 +387,38 @@ static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
     (void)sz;
     memcpy(&t_calibration, calbuf, (uint8_t) sz);
 	*/
-	GFILE* f;
+	uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
+	uint16_t i;
+
 	uint8_t bsize;
 
 	(void)instance;
 
 	bsize = (uint8_t)sz;
 
-	f = gfileOpen("calib.gfx", "w");
-	gfileWrite(f, (void*)&bsize, 1);
-	gfileWrite(f, (void*)calbuf, bsize);
-	gfileClose(f);
+	  for( i = 0; i < bsize; i++ )
+	  {
+	    *(base_addr + i) = calbuf[i];
+	  }
 
-	chprintf( (BaseSequentialStream *)&SD2, "%s\r\n", calbuf );
-	chprintf( (BaseSequentialStream *)&SD2, "%i\r\n", bsize );
+	//chprintf( (BaseSequentialStream *)&SD2, "%s\r\n", calbuf );
+	//chprintf( (BaseSequentialStream *)&SD2, "%i\r\n", bsize );
 }
 
 static const char *myload(uint16_t instance)
 	{
-		GFILE* f;
-		char* buf;
-		uint8_t bsize;
+		uint16_t i;
+		uint8_t bsize = 24;
+		char* buf="";
+		uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
 
 		(void)instance;
 
-		f = gfileOpen("calib.gfx", "r");
-
-		gfileRead(f, (void*)&bsize, 1);
-		buf = gfxAlloc(bsize);
-		gfileRead(f, (void*)buf, bsize);
-
-		gfileClose(f);
-		buf = "/x3d/x84/x21/xa6/x39/x65/x11/x4e/xc1/x51/xda/xf1/xb9/xfe/x85/x01/xbd/xb8/xec/xa2/x43/xb0/xcb/x9f";
+		for ( i = 0; i < bsize; i++)
+		{
+			buf[i] = *(base_addr);
+		}
+		//buf = "/x3d/x84/x21/xa6/x39/x65/x11/x4e/xc1/x51/xda/xf1/xb9/xfe/x85/x01/xbd/xb8/xec/xa2/x43/xb0/xcb/x9f";
 		return buf;
 }
 
@@ -622,9 +623,13 @@ int main(void) {
 
   ADC2status = 0;
 
+  //write_to_backup_sram(0, 0, 0);
+
   /* initialize and clear the display */
   gfxInit();
-  ginputGetMouse(0);
+  ginputGetMouse(9999);
+  //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
+  //ginputGetMouse(0);
   gwinAttachMouse(0);
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
@@ -653,7 +658,6 @@ int main(void) {
 
   chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
 
-  ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
   //mouse = ginputGetMouse(0);
 
   font = gdispOpenFont("UI2");
