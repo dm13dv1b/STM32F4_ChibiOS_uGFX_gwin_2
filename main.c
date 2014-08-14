@@ -667,17 +667,6 @@ int main(void) {
 	  		  default:
 	  				   break ;
 	  	  }
-	  	  /*
-	  	  pem = (GEventMouse *)&gl.event;
-
-	  	  if ((pem->y < bHeight) && (pem->x < swidth))
-	  	  {
-	  		if ((pem->meta & GMETA_MOUSE_UP))
-	  		{
-	  			chprintf( (BaseSequentialStream *)&SD2, "\r\nScreen touch", NULL );
-	  		}
-	  	  }*/
-	  //chThdSleepMilliseconds(500);
   }
 }
 
