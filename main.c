@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include "stdlib.h"
 #include "string.h"
+#include "shell.h"
 #include "myADC.h"
 #include "gfx.h"
 #include "main.h"
@@ -38,9 +39,9 @@
  * Globals definition
  */
 
-//#ifdef BOOTSCREEN
-//static GConsoleObject			gc;
-//#endif
+#ifdef BOOTSCREEN
+static GConsoleObject			gc;
+#endif
 
 #ifdef LOGO
 static GHandle					ghApriliaLogo, ghAprilia;
@@ -208,53 +209,6 @@ void myADCinit(void){
 	adcSTM32EnableTSVREFE();
 }
 
-int uitoa(unsigned int value, char * buf, int max) {
-		int n = 0;
-		int i = 0;
-		unsigned int tmp = 0;
-		if (NULL == buf) {
-		return -3;
-		}
-		if (2 > max) {
-		return -4;
-		}
-		i=1;
-		tmp = value;
-		if (0 > tmp) {
-		tmp *= -1;
-		i++;
-		}
-		for (;;) {
-		tmp /= 10;
-		if (0 >= tmp) {
-		break;
-		}
-		i++;
-		}
-		if (i >= max) {
-		buf[0] = '?';
-		buf[1] = 0x0;
-		return 2;
-		}
-		n = i;
-		tmp = value;
-		if (0 > tmp) {
-		tmp *= -1;
-		}
-		buf[i--] = 0x0;
-		for (;;) {
-		buf[i--] = (tmp % 10) + '0';
-		tmp /= 10;
-		if (0 >= tmp) {
-		break;
-		}
-		}
-		if (-1 != i) {
-		buf[i--] = '-';
-		}
-		return n;
-}
-
 void readADC(void)
 {
 	uint32_t i;
@@ -277,16 +231,6 @@ void readADC(void)
 	  gwinSetText(ADCvalue, Result, TRUE);
 	  //prints the averaged value with 4 digits precision
 	  chprintf((BaseSequentialStream *)&SD2, "\r\nMeasured: %U.%04UV", sum/10000, sum%10000);
-	/*
-	i = avg;
-	sprintf ( Result, "%i", i ); // %d makes the result be a decimal integer
-
-	  for (i=0; i<=4; i++)
-	  {
-		  chprintf( (BaseSequentialStream *)&SD2, "%c", Result[i] );
-	  }
-	  chprintf( (BaseSequentialStream *)&SD2, "\r\n", NULL);
-	*/
 }
 
 void readVoltage(void)
@@ -328,6 +272,58 @@ void readICU(void)
 	sprintf(Result, "%u", last_period_float_2);
 	gwinSetText(ICU2value, Result, TRUE);
 	chprintf((BaseSequentialStream *)&SD2, "\r\nICU2 %d", last_period_2);
+}
+
+void ConsoleInit(void)
+{
+	  /*
+	   * Activates the serial driver 1 using the driver default configuration.
+	   * PA2(TX) and PA3(RX) are routed to USART2.
+	   */
+	  sdStart(&SD2, NULL);
+	  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
+	  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
+}
+
+void mouseInit(void)
+{
+
+	  ginputGetMouse(9999);
+	  gwinAttachMouse(0);
+	  geventListenerInit(&gl);
+	  gwinAttachListener(&gl);
+
+	  //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
+}
+
+void defaultsInit(void)
+{
+	  //get screen size
+	  width = gdispGetWidth();
+	  height = gdispGetHeight();
+	  swidth = gdispGetWidth();
+	  sheight = gdispGetHeight();
+	  font = gdispOpenFont("UI2");
+	  gwinSetDefaultFont(font);
+	  //gwinSetDefaultBgColor(Black);
+	  //gwinSetDefaultColor(White);
+	  bHeight = gdispGetFontMetric(font, fontHeight)+2;
+}
+
+static WORKING_AREA(waThread1, 1024);
+static msg_t Thread1(void *arg) {
+
+  (void)arg;
+  chRegSetThreadName("blinker");
+  while (TRUE) {
+    palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
+    gwinSetText(ghStatus1, "Running", TRUE);
+    chThdSleepMilliseconds(500);
+    palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
+    gwinSetText(ghStatus1, "        ", TRUE);
+    chThdSleepMilliseconds(500);
+  }
+  return 0;
 }
 
 static WORKING_AREA(waThread2, 2048);
@@ -379,53 +375,16 @@ static void CreateLogo(void)
 }
 #endif
 
-static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
-{
-	/*
-    (void)instance;
-    (void)calbuf;
-    (void)sz;
-    memcpy(&t_calibration, calbuf, (uint8_t) sz);
-	*/
-	uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
-	uint16_t i;
-
-	uint8_t bsize;
-
-	(void)instance;
-
-	bsize = (uint8_t)sz;
-
-	  for( i = 0; i < bsize; i++ )
-	  {
-	    *(base_addr + i) = calbuf[i];
-	  }
-
-	//chprintf( (BaseSequentialStream *)&SD2, "%s\r\n", calbuf );
-	//chprintf( (BaseSequentialStream *)&SD2, "%i\r\n", bsize );
-}
-
-static const char *myload(uint16_t instance)
-	{
-		uint16_t i;
-		uint8_t bsize = 24;
-		char* buf="";
-		uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
-
-		(void)instance;
-
-		for ( i = 0; i < bsize; i++)
-		{
-			buf[i] = *(base_addr);
-		}
-		//buf = "/x3d/x84/x21/xa6/x39/x65/x11/x4e/xc1/x51/xda/xf1/xb9/xfe/x85/x01/xbd/xb8/xec/xa2/x43/xb0/xcb/x9f";
-		return buf;
-}
-
 #if BOOTSCREEN
 static void bootScreen(void)
 {
-    gdispFillStringBox(0, 0, width, bHeight, "Boot", font, Red, White, justifyLeft);
+	size_t n, size;
+	static const char *states[] = {THD_STATE_NAMES};
+	Thread *tp;
+
+	n = chHeapStatus(NULL, &size);
+
+	gdispFillStringBox(0, 0, width, bHeight, "Boot", font, Red, White, justifyLeft);
 
 	// Create our main display window
 	{
@@ -438,8 +397,30 @@ static void bootScreen(void)
 		wi.height = height-bHeight;
 		ghc = gwinConsoleCreate(&gc, &wi);
 	}
-	gwinPrintf(ghc, "Boot finished.\n");
-	chThdSleepMilliseconds(500);
+	gwinPrintf(ghc, "core free memory : %u bytes\r\n", chCoreStatus());
+	gwinPrintf(ghc, "heap fragments   : %u\r\n", n);
+	gwinPrintf(ghc, "heap free total  : %u bytes\r\n", size);
+
+	gwinPrintf(ghc, "    addr    stack prio refs     state time\r\n");
+	  tp = chRegFirstThread();
+	  do {
+	    gwinPrintf(ghc, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n",
+	            (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
+	            (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
+	            states[tp->p_state], (uint32_t)tp->p_time);
+	    tp = chRegNextThread(tp);
+	  } while (tp != NULL);
+
+	gwinPrintf(ghc, "\r\nhalInit.");
+	gwinPrintf(ghc, "\r\nchSysInit");
+	gwinPrintf(ghc, "\r\ngfxInit");
+	gwinPrintf(ghc, "\r\nmouseInit");
+	gwinPrintf(ghc, "\r\nDefault settings");
+	gwinPrintf(ghc, "\r\nadcInit");
+	gwinPrintf(ghc, "\r\nicuInit");
+	gwinPrintf(ghc, "\r\nconsoleInit");
+	gwinPrintf(ghc, "\r\nBoot finished.");
+	chThdSleepMilliseconds(2000);
 }
 #endif
 
@@ -586,24 +567,9 @@ static void createWidgets(void)
 	*/
 }
 
-static WORKING_AREA(waThread1, 1024);
-static msg_t Thread1(void *arg) {
-
-  (void)arg;
-  chRegSetThreadName("blinker");
-  while (TRUE) {
-    palSetPad(GPIOD, GPIOD_LED3);       /* Orange.  */
-    gwinSetText(ghStatus1, "Running", TRUE);
-    chThdSleepMilliseconds(500);
-    palClearPad(GPIOD, GPIOD_LED3);     /* Orange.  */
-    gwinSetText(ghStatus1, "        ", TRUE);
-    chThdSleepMilliseconds(500);
-  }
-  return 0;
-}
-
-void startBlinker(void){
+void startThreads(void){
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+  chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
 }
 
 /*
@@ -621,50 +587,14 @@ int main(void) {
   halInit();
   chSysInit();
 
-  ADC2status = 0;
-
-  //write_to_backup_sram(0, 0, 0);
-
   /* initialize and clear the display */
   gfxInit();
-  ginputGetMouse(9999);
-  //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
-  //ginputGetMouse(0);
-  gwinAttachMouse(0);
-  geventListenerInit(&gl);
-  gwinAttachListener(&gl);
-  //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
-
-
-  //mouse = ginputGetMouse(0);
-  //get screen size
-  width = gdispGetWidth();
-  height = gdispGetHeight();
-  swidth = gdispGetWidth();
-  sheight = gdispGetHeight();
-  font = gdispOpenFont("UI2");
-
-  startBlinker();
+  mouseInit();
+  defaultsInit();
 
   myADCinit();
   ICUinit();
-  /*
-   * Activates the serial driver 1 using the driver default configuration.
-   * PA2(TX) and PA3(RX) are routed to USART2.
-   */
-  sdStart(&SD2, NULL);
-  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
-  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
-
-  chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
-
-  //mouse = ginputGetMouse(0);
-
-  font = gdispOpenFont("UI2");
-  gwinSetDefaultFont(font);
-  gwinSetDefaultBgColor(Black);
-  gwinSetDefaultColor(White);
-  bHeight = gdispGetFontMetric(font, fontHeight)+2;
+  ConsoleInit();
 
 #if BOOTSCREEN
   bootScreen();
@@ -675,10 +605,12 @@ int main(void) {
   CreateLogo();
 #endif
 
+  startThreads();
+
   // create main screen
   createWidgets();
 
-  chprintf( (BaseSequentialStream *)&SD2, "Main loop\r\n", NULL );
+  chprintf( (BaseSequentialStream *)&SD2, "\r\nMain loop", NULL );
 
   while (TRUE)
   {
@@ -695,7 +627,7 @@ int main(void) {
 	  		  		  	  	  					chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
 	  		  		  	  	  				}
 	  		  		  	  	  	  }
-
+	  		  		  	  	  	  break;
 
 	  	  	  case GEVENT_GWIN_BUTTON:
 	  	  		   	   if (((GEventGWinButton*)pe)->button == ghConsole)

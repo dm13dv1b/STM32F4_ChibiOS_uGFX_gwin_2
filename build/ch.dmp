@@ -1,0 +1,840 @@
+
+build/ch.elf:     file format elf32-littlearm
+build/ch.elf
+architecture: arm, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x080017b1
+
+Program Header:
+0x70000001 off    0x00017b1c vaddr 0x0800fb1c paddr 0x0800fb1c align 2**2
+         filesz 0x00000008 memsz 0x00000008 flags r--
+    LOAD off    0x00008000 vaddr 0x08000000 paddr 0x08000000 align 2**15
+         filesz 0x0000fb24 memsz 0x0000fb28 flags rwx
+    LOAD off    0x00018800 vaddr 0x20000800 paddr 0x0800fb28 align 2**15
+         filesz 0x000008bc memsz 0x000008bc flags rw-
+    LOAD off    0x000190c0 vaddr 0x200010c0 paddr 0x080103e4 align 2**15
+         filesz 0x00000000 memsz 0x00003498 flags rw-
+    LOAD off    0x00020000 vaddr 0x20000000 paddr 0x20000000 align 2**15
+         filesz 0x00000000 memsz 0x00000800 flags rw-
+private flags = 5000002: [Version5 EABI] [has entry point]
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 startup       000001ac  08000000  08000000  00008000  2**4
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         0000f96c  080001b0  080001b0  000081b0  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .ARM.exidx    00000008  0800fb1c  0800fb1c  00017b1c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .textalign    00000004  0800fb24  0800fb24  00017b24  2**0
+                  ALLOC
+  4 .stacks       00000800  20000000  20000000  00020000  2**0
+                  ALLOC
+  5 .data         000008bc  20000800  0800fb28  00018800  2**3
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .bss          00003498  200010c0  080103e4  000190c0  2**3
+                  ALLOC
+  7 .debug_info   0002ba0f  00000000  00000000  000190bc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 00008b98  00000000  00000000  00044acb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    0000fde1  00000000  00000000  0004d663  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_aranges 000015c8  00000000  00000000  0005d444  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 000022b0  00000000  00000000  0005ea0c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_line   0000bc4e  00000000  00000000  00060cbc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_str    00005981  00000000  00000000  0006c90a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .comment      00000070  00000000  00000000  0007228b  2**0
+                  CONTENTS, READONLY
+ 15 .ARM.attributes 00000037  00000000  00000000  000722fb  2**0
+                  CONTENTS, READONLY
+ 16 .debug_frame  000042f0  00000000  00000000  00072334  2**2
+                  CONTENTS, READONLY, DEBUGGING
+SYMBOL TABLE:
+08000000 l    d  startup	00000000 startup
+080001b0 l    d  .text	00000000 .text
+0800fb1c l    d  .ARM.exidx	00000000 .ARM.exidx
+0800fb24 l    d  .textalign	00000000 .textalign
+20000000 l    d  .stacks	00000000 .stacks
+20000800 l    d  .data	00000000 .data
+200010c0 l    d  .bss	00000000 .bss
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_loc	00000000 .debug_loc
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_ranges	00000000 .debug_ranges
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    df *ABS*	00000000 vectors.c
+00000000 l    df *ABS*	00000000 main.c
+08008d20 l     F .text	00000010 icuwidthcb
+08008d30 l     F .text	00000010 icuperiodcb
+08008d40 l     F .text	00000010 icuwidthcb2
+08008d50 l     F .text	00000010 icuperiodcb2
+08008d60 l     F .text	00000010 adcerrorcallback
+08008d70 l     F .text	00000058 Thread1
+08008dd0 l     F .text	00000024 chprintf.constprop.0
+080090d0 l     F .text	0000006c Thread2
+0800f5f0 l     O .text	00000028 adcgrpcfg1
+2000259c l     O .bss	00000004 ADCvalue
+200025a2 l     O .bss	00000002 width
+200025ac l     O .bss	00000004 ADCvalue2
+2000080c l     O .data	0000001c icucfg
+200025b0 l     O .bss	00000004 ICU2value
+0800f620 l     O .text	00000028 adcgrpcfg2
+200025b8 l     O .bss	00000004 ghc
+200025bc l     O .bss	00000800 samples1
+20002dbc l     O .bss	00000800 samples2
+200035bc l     O .bss	00000004 ADClabel
+200035c0 l     O .bss	00000004 ghBrightness
+200035c4 l     O .bss	00000004 ICU2label
+200035c8 l     O .bss	00000002 bWidth
+200035cc l     O .bss	00000004 pem
+200035d0 l     O .bss	00000004 ghStatus2
+200035d4 l     O .bss	00000002 height
+200035d8 l     O .bss	00000004 ghConsole
+200035e0 l     O .bss	00000004 ICU1label
+200035e4 l     O .bss	00000004 ADClabel2
+200035e8 l     O .bss	00000004 ghStatus1
+200035ec l     O .bss	00000004 font
+200035f0 l     O .bss	00000002 swidth
+200035f4 l     O .bss	00000004 ICU1value
+200035f8 l     O .bss	00000024 gc
+20000828 l     O .data	0000001c icucfg2
+0800f940 l     O .text	0000003c states.9442
+2000361c l     O .bss	00000004 pe
+20003624 l     O .bss	00000048 gl
+2000366c l     O .bss	00000002 sheight
+20003670 l     O .bss	00000558 waThread1
+20003bc8 l     O .bss	00000958 waThread2
+20004520 l     O .bss	00000002 bHeight
+00000000 l    df *ABS*	00000000 _aeabi_ldivmod.o
+00000000 l    df *ABS*	00000000 _aeabi_uldivmod.o
+00000000 l    df *ABS*	00000000 bpabi.c
+00000000 l    df *ABS*	00000000 _dvmd_tls.o
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 lib_a-memcpy.o
+00000000 l    df *ABS*	00000000 _arm_addsubdf3.o
+00000000 l    df *ABS*	00000000 _arm_muldivdf3.o
+00000000 l    df *ABS*	00000000 _arm_cmpdf2.o
+00000000 l    df *ABS*	00000000 _arm_fixdfsi.o
+00000000 l    df *ABS*	00000000 crt0.c
+00000000 l    df *ABS*	00000000 chcore.c
+00000000 l    df *ABS*	00000000 chcore_v7m.c
+080018f4 l       .text	00000000 _port_exit_from_isr
+00000000 l    df *ABS*	00000000 nvic.c
+00000000 l    df *ABS*	00000000 chsys.c
+200010c0 l     O .bss	0000004c mainthread.4840
+00000000 l    df *ABS*	00000000 chdebug.c
+00000000 l    df *ABS*	00000000 chlists.c
+00000000 l    df *ABS*	00000000 chvt.c
+00000000 l    df *ABS*	00000000 chschd.c
+08001dd0 l     F .text	00000042 wakeup
+00000000 l    df *ABS*	00000000 chthreads.c
+00000000 l    df *ABS*	00000000 chdynamic.c
+00000000 l    df *ABS*	00000000 chregistry.c
+00000000 l    df *ABS*	00000000 chsem.c
+00000000 l    df *ABS*	00000000 chmtx.c
+00000000 l    df *ABS*	00000000 chevents.c
+00000000 l    df *ABS*	00000000 chqueues.c
+080026f0 l     F .text	0000002c qwait
+00000000 l    df *ABS*	00000000 chmemcore.c
+200016b0 l     O .bss	00000004 endmem
+200016b4 l     O .bss	00000004 nextmem
+00000000 l    df *ABS*	00000000 chheap.c
+200016b8 l     O .bss	00000020 default_heap
+00000000 l    df *ABS*	00000000 chmempools.c
+00000000 l    df *ABS*	00000000 hal.c
+00000000 l    df *ABS*	00000000 adc.c
+00000000 l    df *ABS*	00000000 icu.c
+00000000 l    df *ABS*	00000000 pal.c
+00000000 l    df *ABS*	00000000 pwm.c
+00000000 l    df *ABS*	00000000 serial.c
+08002f00 l     F .text	00000006 readt
+08002f10 l     F .text	0000000a read
+08002f20 l     F .text	00000006 writet
+08002f30 l     F .text	0000000a write
+08002f40 l     F .text	00000006 gett
+08002f50 l     F .text	0000000a get
+08002f60 l     F .text	00000006 putt
+08002f70 l     F .text	0000000a put
+0800d630 l     O .text	00000020 vmt
+00000000 l    df *ABS*	00000000 spi.c
+00000000 l    df *ABS*	00000000 stm32_dma.c
+200016d8 l     O .bss	00000080 dma_isr_redir
+20001758 l     O .bss	00000004 dma_streams_mask
+00000000 l    df *ABS*	00000000 hal_lld.c
+00000000 l    df *ABS*	00000000 adc_lld.c
+080039e0 l     F .text	000000ce adc_lld_serve_rx_interrupt
+00000000 l    df *ABS*	00000000 pal_lld.c
+00000000 l    df *ABS*	00000000 spi_lld.c
+08003d50 l     F .text	0000000c spi_lld_serve_tx_interrupt
+08003d60 l     F .text	0000007c spi_lld_serve_rx_interrupt
+200017c4 l     O .bss	00000002 dummytx
+00000000 l    df *ABS*	00000000 icu_lld.c
+08003f20 l     F .text	0000007c icu_lld_serve_interrupt
+00000000 l    df *ABS*	00000000 pwm_lld.c
+00000000 l    df *ABS*	00000000 serial_lld.c
+08004370 l     F .text	00000014 notify2
+0800da40 l     O .text	0000000c default_config
+00000000 l    df *ABS*	00000000 board.c
+00000000 l    df *ABS*	00000000 gfx.c
+200018b4 l     O .bss	00000001 initDone
+00000000 l    df *ABS*	00000000 chibios.c
+00000000 l    df *ABS*	00000000 gqueue.c
+00000000 l    df *ABS*	00000000 gdisp.c
+08004780 l     F .text	00000024 drawcharglyph
+08004890 l     F .text	00000066 drawcharline
+080047b0 l     F .text	00000024 fillcharglyph
+080047e0 l     F .text	000000a8 hline_clip
+08004900 l     F .text	000000a8 vline_clip
+200018b8 l     O .bss	00000058 GDisplayArray
+0800db50 l     O .text	00000080 blks.7904
+00000000 l    df *ABS*	00000000 fonts.c
+08005330 l     F .text	00000048 matchfont
+00000000 l    df *ABS*	00000000 mf_encoding.c
+00000000 l    df *ABS*	00000000 mf_font.c
+0800dbd0 l     O .text	00000008 mf_rlefont_UI1_Narrow_listentry
+0800ef30 l     O .text	00000008 mf_rlefont_UI1_Double_listentry
+0800dbe0 l     O .text	00000008 mf_rlefont_UI1_listentry
+0800dbf0 l     O .text	00000018 mf_bwfont_fixed_5x8_char_ranges
+0800ef40 l     O .text	000001db mf_bwfont_fixed_5x8_glyph_data_0
+0800dc40 l     O .text	0000000c mf_rlefont_UI2_char_ranges
+0800f280 l     O .text	000000be mf_rlefont_UI2_glyph_offsets_0
+0800e700 l     O .text	00000336 mf_rlefont_UI2_glyph_data_0
+0800dc50 l     O .text	00000003 mf_rlefont_UI1_glyph_data_0
+0800dc60 l     O .text	000000d8 mf_rlefont_UI1_dictionary_offsets
+0800dd40 l     O .text	0000007c mf_rlefont_UI2_dictionary_offsets
+0800ea50 l     O .text	0000011b mf_rlefont_UI1_dictionary_data
+0800ee30 l     O .text	00000024 mf_rlefont_UI1_char_ranges
+0800f120 l     O .text	0000009f mf_rlefont_UI2_dictionary_data
+0800de20 l     O .text	00000276 mf_rlefont_LargeNumbers_glyph_data_0
+0800e0a0 l     O .text	0000000c mf_rlefont_LargeNumbers_char_ranges
+0800f1c0 l     O .text	00000034 mf_rlefont_LargeNumbers_glyph_offsets_0
+0800e0b0 l     O .text	00000008 mf_rlefont_UI2_listentry
+0800ee90 l     O .text	00000008 mf_rlefont_UI2_Narrow_listentry
+0800e0c0 l     O .text	00000312 mf_rlefont_UI1_glyph_data_1
+0800e3e0 l     O .text	00000312 mf_rlefont_UI1_glyph_data_2
+0800ea40 l     O .text	00000008 mf_rlefont_UI2_Double_listentry
+0800eea0 l     O .text	0000008d mf_rlefont_LargeNumbers_dictionary_data
+0800f210 l     O .text	0000006e mf_rlefont_LargeNumbers_dictionary_offsets
+0800ec40 l     O .text	00000002 mf_rlefont_UI1_glyph_offsets_0
+0800ec50 l     O .text	000000c8 mf_rlefont_UI1_glyph_offsets_1
+0800ed20 l     O .text	000000d6 mf_rlefont_UI1_glyph_offsets_2
+0800f200 l     O .text	00000008 mf_rlefont_LargeNumbers_listentry
+0800f3a0 l     O .text	00000008 mf_bwfont_fixed_5x8_listentry
+00000000 l    df *ABS*	00000000 mf_justify.c
+08005520 l     F .text	00000036 mf_round_to_tab
+08005560 l     F .text	0000005c render_left
+00000000 l    df *ABS*	00000000 mf_rlefont.c
+08005780 l     F .text	0000006c write_pixels
+080057f0 l     F .text	00000038 find_glyph.isra.0
+08005830 l     F .text	00000198 write_ref_codeword
+00000000 l    df *ABS*	00000000 mf_bwfont.c
+00000000 l    df *ABS*	00000000 mf_scaledfont.c
+08005cb0 l     F .text	00000054 scaled_pixel_callback
+00000000 l    df *ABS*	00000000 gevent.c
+08005d80 l     F .text	0000007c deleteAssignments
+20001910 l     O .bss	00000200 Assignments
+20001b10 l     O .bss	00000010 geventMutex
+00000000 l    df *ABS*	00000000 gtimer.c
+08006060 l     F .text	000000d0 GTimerThreadHandler
+20001b20 l     O .bss	00000010 mutex
+20001b30 l     O .bss	00000004 hThread
+20001b38 l     O .bss	00000958 waTimerThread
+20002490 l     O .bss	00000004 pTimerHead
+20002494 l     O .bss	00000010 waitsem
+00000000 l    df *ABS*	00000000 gwin.c
+200024a4 l     O .bss	00000004 defaultFont
+200024a8 l     O .bss	00000002 defaultBgColor
+20000804 l     O .data	00000002 defaultFgColor
+00000000 l    df *ABS*	00000000 gwidget.c
+08006490 l     F .text	000000ec gwidgetEvent
+08006580 l     F .text	0000002a _gwidgetUpdate.part.1
+200024ac l     O .bss	00000048 gl
+20000808 l     O .data	00000004 defaultStyle
+00000000 l    df *ABS*	00000000 gwm.c
+08006750 l     F .text	00000048 _gwinRedrawDisplay
+080067a0 l     F .text	00000002 WM_Init
+080067b0 l     F .text	00000002 WM_DeInit
+080067c0 l     F .text	00000002 WM_MinMax
+080067d0 l     F .text	0000000c WM_Delete
+080067e0 l     F .text	000000d4 WM_Redraw
+080068c0 l     F .text	00000028 WM_Raise
+080068f0 l     F .text	00000082 WM_Move
+08006980 l     F .text	00000092 WM_Size
+08006a20 l     F .text	00000040 WM_Add
+0800f3f0 l     O .text	00000024 GNullWindowManagerVMT
+200024f8 l     O .bss	0000001c RedrawTimer
+0800f420 l     O .text	00000004 GNullWindowManager
+20002514 l     O .bss	00000004 RedrawDisplay
+20002518 l     O .bss	00000008 _GWINList
+20002520 l     O .bss	00000001 RedrawPreserve
+00000000 l    df *ABS*	00000000 console.c
+08006ac0 l     F .text	00000008 AfterClear
+08006ad0 l     F .text	0000004a ltoa_wd.constprop.1
+0800f440 l     O .text	00000014 consoleVMT
+00000000 l    df *ABS*	00000000 button.c
+08006f10 l     F .text	0000000c MouseDown
+08006f20 l     F .text	00000040 MouseUp
+0800f460 l     O .text	00000024 buttonVMT
+00000000 l    df *ABS*	00000000 slider.c
+080070b0 l     F .text	00000046 ResetDisplayPos
+08007100 l     F .text	00000044 MouseMove
+08007150 l     F .text	000000d0 MouseUp
+0800f4b0 l     O .text	00000024 sliderVMT
+00000000 l    df *ABS*	00000000 label.c
+08007510 l     F .text	000000bc gwinLabelDefaultDraw
+0800f4e0 l     O .text	00000024 labelVMT
+00000000 l    df *ABS*	00000000 ginput.c
+00000000 l    df *ABS*	00000000 mouse.c
+08007650 l     F .text	00000060 get_raw_reading.constprop.1
+08007740 l     F .text	0000008c get_calibrated_reading.constprop.0
+080077d0 l     F .text	000001ac MousePoll
+20002524 l     O .bss	0000001c MouseTimer
+20002540 l     O .bss	0000003c MouseConfig
+00000000 l    df *ABS*	00000000 gdisp_lld_SSD1289.c
+08008150 l     F .text	000000b0 set_cursor
+08008200 l     F .text	00000128 set_viewport
+0800f590 l     O .text	00000034 pwmcfg
+00000000 l    df *ABS*	00000000 ginput_lld_mouse.c
+2000257c l     O .bss	00000003 txbuf.7835
+0800f5d0 l     O .text	0000000c spicfg
+20002580 l     O .bss	00000003 rxbuf.7836
+20002584 l     O .bss	0000000e sampleBuf
+20002594 l     O .bss	00000002 lastx
+20002596 l     O .bss	00000002 lasty
+00000000 l    df *ABS*	00000000 syscalls.c
+00000000 l    df *ABS*	00000000 chprintf.c
+08008a90 l     F .text	0000004a long_to_string_with_divisor.constprop.0
+00000000 l    df *ABS*	00000000 memset.c
+00000000 l    df *ABS*	00000000 sprintf.c
+00000000 l    df *ABS*	00000000 strcpy.c
+00000000 l    df *ABS*	00000000 strlen.c
+00000000 l    df *ABS*	00000000 strncat.c
+00000000 l    df *ABS*	00000000 vfprintf.c
+0800f980 l     O .text	00000010 zeroes.6763
+0800f9d0 l     O .text	00000010 blanks.6762
+00000000 l    df *ABS*	00000000 dtoa.c
+0800a9b0 l     F .text	00000130 quorem
+00000000 l    df *ABS*	00000000 locale.c
+20000c74 l     O .data	00000038 lconv
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 memchr-stub.c
+00000000 l    df *ABS*	00000000 mlock.c
+00000000 l    df *ABS*	00000000 mprec.c
+0800fb10 l     O .text	0000000c p05.5269
+00000000 l    df *ABS*	00000000 s_fpclassify.c
+00000000 l    df *ABS*	00000000 vfprintf.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 memmove.c
+00000000 l    df *ABS*	00000000 mallocr.c
+00000000 l    df *ABS*	00000000 impure.c
+20000848 l     O .data	00000428 impure_data
+00000000 l    df *ABS*	00000000 
+0800fb28 l       .stacks	00000000 _etext
+00000000 l       *UND*	00000000 msObjectInit
+0001c000 l       *ABS*	00000000 __ram_size__
+00000000 l       startup	00000000 _text
+20000000 l       startup	00000000 __ram_start__
+2001c000 l       *ABS*	00000000 __ram_end__
+20004558 l       .bss	00000000 _end
+00000400 l       *ABS*	00000000 __main_stack_size__
+00000400 l       *ABS*	00000000 __process_stack_size__
+0800da50 g     O .text	000000fc pal_default_config
+080018d0  w    F .text	00000002 Vector58
+080018d0  w    F .text	00000002 VectorE8
+080018d0  w    F .text	00000002 Vector9C
+08001704 g     F .text	00000012 .hidden __aeabi_dcmple
+08001a60 g     F .text	0000004a nvicEnableVector
+08009330 g     F .text	000000ba strcpy
+080007e0 g     F .text	00000030 .hidden __gnu_uldivmod_helper
+08005030 g     F .text	000000bc gdispGDrawStringBox
+080018d0  w    F .text	00000002 VectorAC
+08002220 g     F .text	0000000e chThdExit
+08001b70 g     F .text	00000058 chSysTimerHandlerI
+080026c0 g     F .text	00000030 chEvtBroadcastFlagsI
+08001e70 g     F .text	00000044 chSchGoSleepTimeoutS
+08001640 g     F .text	0000007a .hidden __cmpdf2
+08006b20 g     F .text	00000028 gwinGConsoleCreate
+080052b0 g     F .text	00000014 gdispGetStringWidth
+08001640 g     F .text	0000007a .hidden __eqdf2
+08004ec0 g     F .text	000000e4 gdispGDrawBox
+08000820 g     F .text	00000296 .hidden __divdi3
+080018d0  w    F .text	00000002 Vector1A0
+08002520 g     F .text	000000b0 chMtxLockS
+080018d0  w    F .text	00000002 Vector5C
+080011a4 g     F .text	0000005a .hidden __floatdidf
+080018d0  w    F .text	00000002 NMIVector
+08005d10 g     F .text	00000016 mf_scaled_character_width
+08002070 g     F .text	0000000e _thread_memfill
+08002ae0 g     F .text	000000c8 chHeapFree
+200025a4 g     O .bss	00000006 Result
+080018d0  w    F .text	00000002 Vector11C
+0800ee60 g     O .text	00000024 mf_rlefont_UI2_Double
+08007490 g     F .text	00000028 gwinSliderSetRange
+080091a0 g     F .text	00000058 defaultsInit
+08003490 g     F .text	00000048 dmaInit
+080018d0  w    F .text	00000002 Vector19C
+080086d0 g     F .text	00000004 gdisp_lld_write_pos
+0800bf30 g     F .text	00000002 __malloc_unlock
+08009030 g     F .text	0000009c readICU
+08009140 g     F .text	00000030 ConsoleInit
+080018d0  w    F .text	00000002 Vector8C
+080062d0 g     F .text	0000008c _gwindowCreate
+0800c9a0 g     F .text	000000c0 memmove
+08002e70 g     F .text	00000044 pwmStart
+080018d0  w    F .text	00000002 VectorDC
+08006160 g     F .text	00000108 gtimerStart
+080018d0  w    F .text	00000002 Vector168
+0800bf40 g     F .text	0000004c _Balloc
+08004680 g     F .text	0000001c gfxSemSignal
+08000000 g     O startup	000001ac _vectors
+08001960 g     F .text	00000008 _port_lock
+0800eb70 g     O .text	00000030 mf_rlefont_LargeNumbers
+0800f3b0 g     O .text	0000001a BlackWidgetStyle
+08004630 g     F .text	0000000c gfxSemInit
+08001e20 g     F .text	0000004c chSchGoSleepS
+080018d0  w    F .text	00000002 Vector110
+08001630 g     F .text	0000008a .hidden __gtdf2
+08006440 g     F .text	00000048 _gwidgetCreate
+080049b0 g     F .text	0000022a gdispGDrawLine
+0800dc10 g     O .text	00000024 mf_rlefont_UI1_Double
+08004210 g     F .text	00000118 pwm_lld_start
+20004558 g       .bss	00000000 __heap_base__
+08001970 g     F .text	00000008 _port_unlock
+0800f340 g     O .text	00000024 mf_rlefont_UI1_Narrow
+08003310 g     F .text	00000028 Vector120
+08002080 g     F .text	0000009c chThdCreateI
+080016cc g     F .text	00000010 .hidden __aeabi_cdcmple
+08005c60 g     F .text	00000048 mf_bwfont_character_width
+080018d0  w    F .text	00000002 VectorC8
+080046e0 g     F .text	00000008 gfxQueueASyncInit
+08001ec0 g     F .text	00000060 chSchWakeupS
+080065f0 g     F .text	00000010 _gwidgetRedraw
+08007640 g     F .text	00000002 _ginputInit
+08003010 g     F .text	0000004c sdIncomingDataI
+080028e0 g     F .text	00000042 chOQGetI
+08001d70 g     F .text	00000014 _scheduler_init
+08001fd0 g     F .text	00000018 chSchRescheduleS
+08002120 g     F .text	00000046 chThdCreateStatic
+08005490 g     F .text	0000002e mf_rewind
+080086b0 g     F .text	00000010 gdisp_lld_write_color
+080018d0  w    F .text	00000002 Vector94
+080018d0  w    F .text	00000002 VectorA8
+08004640 g     F .text	00000038 gfxSemWait
+08000d50 g     F .text	00000134 memcpy
+080016bc g     F .text	00000020 .hidden __aeabi_cdrcmple
+08004180 g     F .text	00000064 VectorB4
+08006720 g     F .text	0000000c gwinAttachListener
+080094c0 g     F .text	000014ec _svfprintf_r
+08001134 g     F .text	00000022 .hidden __floatsidf
+08002d30 g     F .text	00000048 adcConvert
+08006130 g     F .text	00000020 _gtimerInit
+08001638 g     F .text	00000082 .hidden __ltdf2
+08000780 g     F .text	00000000 .hidden __aeabi_uldivmod
+080046d0 g     F .text	00000002 _gqueueInit
+080053f0 g     F .text	0000009e mf_getchar
+2000183c g     O .bss	00000078 SD2
+08001d90 g     F .text	00000040 chSchReadyI
+080001ac g       startup	00000000 __fini_array_end
+080018e0  w    F .text	00000004 port_halt
+08008e00 g     F .text	00000060 ICUinit
+20000800 g       .stacks	00000000 __main_thread_stack_end__
+0800c5a0 g     F .text	00000054 __fpclassifyd
+08001cb0 g     F .text	00000018 _vt_init
+08005f70 g     F .text	00000064 geventGetSourceListener
+080086c0 g     F .text	00000002 gdisp_lld_write_stop
+08002a40 g     F .text	0000001c _heap_init
+080031f0 g     F .text	0000002c Vector74
+0800fa10 g     O .text	000000c8 __mprec_tens
+08002c20 g     F .text	0000002c halInit
+080075d0 g     F .text	00000070 gwinGLabelCreate
+080018d0  w    F .text	00000002 Vector160
+20003620 g     O .bss	00000004 sum
+080018d0  w    F .text	00000002 VectorEC
+200010c0 g       .bss	00000000 _bss_start
+08001f20 g     F .text	0000004c chSchDoRescheduleBehind
+2000452c g     O .bss	00000004 __malloc_top_pad
+080062c0 g     F .text	0000000e _gwinInit
+080018d0  w    F .text	00000002 UsageFaultVector
+2001c000 g       *ABS*	00000000 __heap_end__
+080018d0  w    F .text	00000002 DebugMonitorVector
+080022b0 g     F .text	00000058 chThdCreateFromHeap
+08001114 g     F .text	0000001e .hidden __aeabi_ui2d
+0800b940 g     F .text	00000008 _localeconv_r
+0800c0f0 g     F .text	00000012 __i2b
+08000e90 g     F .text	00000000 .hidden __aeabi_drsub
+08008880 g     F .text	00000054 ginput_lld_mouse_init
+080018d0  w    F .text	00000002 Vector40
+08008a60 g     F .text	00000028 _sbrk_r
+080018d0  w    F .text	00000002 VectorF8
+08003fc0 g     F .text	00000014 Vector108
+08001c70 g     F .text	0000000c queue_insert
+080017b0 g     F .text	00000120 ResetHandler
+080027e0 g     F .text	00000084 chIQReadTimeout
+080018d0  w    F .text	00000002 VectorBC
+080018d0  w    F .text	00000002 Vector190
+08003400 g     F .text	0000002c Vector150
+08003340 g     F .text	0000002c Vector124
+08002bb0 g     F .text	00000040 chHeapStatus
+080016f0 g     F .text	00000012 .hidden __aeabi_dcmplt
+080076b0 g     F .text	00000086 _tsOrientClip
+08005ef0 g     F .text	0000001e geventEventWait
+08001930 g     F .text	00000030 _port_init
+20004528 g     O .bss	00000004 __malloc_max_sbrked_mem
+08002cc0 g     F .text	00000050 adcStartConversionI
+08005aa0 g     F .text	00000018 mf_rlefont_character_width
+080035a0 g     F .text	000000b8 hal_lld_init
+08001158 g     F .text	0000003a .hidden __extendsfdf2
+0800ddf0 g     O .text	00000030 mf_rlefont_UI2
+08001454 g     F .text	000001d0 .hidden __aeabi_ddiv
+08005510 g     F .text	00000008 mf_get_font_list
+08000e9c g     F .text	00000276 .hidden __adddf3
+08003de0 g     F .text	00000044 spi_lld_init
+08001200 g     F .text	00000254 .hidden __aeabi_dmul
+08002410 g     F .text	00000010 chSemWait
+080021d0 g     F .text	0000004c chThdExitS
+08006380 g     F .text	0000000c gwinGetDefaultBgColor
+20001810 g     O .bss	00000018 ICUD5
+0800ca60 g     F .text	000003cc _realloc_r
+08002d10 g     F .text	00000014 adcStartConversion
+08005260 g     F .text	00000038 gdispGetFontMetric
+08000ac0 g     F .text	00000282 .hidden __udivdi3
+0800fae0 g     O .text	00000028 __mprec_bigtens
+080018d0  w    F .text	00000002 Vector148
+080018d0  w    F .text	00000002 Vector188
+08002c50 g     F .text	00000004 adcInit
+08001114 g     F .text	0000001e .hidden __floatunsidf
+0800c3b0 g     F .text	00000046 __mcmp
+08006730 g     F .text	0000001c gwinAttachMouse
+08008ae0 g     F .text	00000240 chvprintf
+080045d0 g     F .text	0000002c gfxSleepMilliseconds
+08008e60 g     F .text	00000024 myADCinit
+20001278 g     O .bss	00000408 dbg_trace_buffer
+08009170 g     F .text	00000028 mouseInit
+08003790 g     F .text	000000ac adc_lld_start
+080018d0  w    F .text	00000002 PendSVVector
+20000844 g     O .data	00000004 VREFMeasured
+080018d0  w    F .text	00000002 Vector198
+080018d0  w    F .text	00000002 Vector118
+08004720 g     F .text	00000042 gfxQueueASyncRemoveI
+08001cd0 g     F .text	00000050 chVTSetI
+080018d0  w    F .text	00000002 Vector64
+20004558 g       .bss	00000000 _bss_end
+200035dc g     O .bss	00000002 last_width_2
+20001680 g     O .bss	00000004 dbg_panic_msg
+08005d30 g     F .text	0000004c mf_scaled_render_character
+08009200 g     F .text	0000003c startThreads
+080017a0  w    F .text	00000002 _default_exit
+08003c80 g     F .text	000000c8 _pal_lld_setgroupmode
+08003730 g     F .text	00000054 adc_lld_init
+08006420 g     F .text	00000014 gwinRedraw
+200025a0 g     O .bss	00000001 console
+08003140 g     F .text	00000028 spiAcquireBus
+0800c050 g     F .text	00000040 __hi0bits
+080018d0  w    F .text	00000002 VectorCC
+08001740 g     F .text	0000004e .hidden __fixdfsi
+08004490 g     F .text	00000020 sd_lld_init
+08002380 g     F .text	00000028 chSemInit
+08004570 g     F .text	00000034 gfxInit
+080018d0  w    F .text	00000002 Vector54
+080018d0  w    F .text	00000002 Vector98
+080054f0 g     F .text	00000014 mf_character_width
+20001790 g     O .bss	00000034 ADCD2
+2000175c g     O .bss	00000034 ADCD1
+08004fb0 g     F .text	00000078 gdispGDrawChar
+08004c10 g     F .text	000000a4 gdispGFillArea
+08004390 g     F .text	000000f8 VectorD8
+08006610 g     F .text	00000070 gwinSetText
+080018d0  w    F .text	00000002 Vector138
+08000e9c g     F .text	00000276 .hidden __aeabi_dadd
+080018d0  w    F .text	00000002 Vector24
+08001638 g     F .text	00000082 .hidden __ledf2
+080025d0 g     F .text	00000010 chMtxLock
+08003e30 g     F .text	000000b0 spi_lld_start
+080052d0 g     F .text	0000005a gdispBlendColor
+0800c250 g     F .text	0000009c __pow5mult
+08001194 g     F .text	0000006a .hidden __aeabi_ul2d
+08008e90 g     F .text	000000e0 readADC
+08002a20 g     F .text	00000014 chCoreStatus
+08001ff0 g     F .text	00000018 chSchDoReschedule
+080055c0 g     F .text	00000056 mf_get_string_width
+08001b00 g     F .text	0000006c chSysInit
+080018d0  w    F .text	00000002 Vector178
+08002170 g     F .text	00000024 chThdSleep
+08002720 g     F .text	0000001e chIQInit
+08001c40 g     F .text	00000024 prio_insert
+0800d8e0 g     O .text	000000c0 _stm32_dma_streams
+080032b0 g     F .text	0000002c Vector84
+08005e10 g     F .text	00000022 geventListenerInit
+08005e40 g     F .text	000000a4 geventAttachSource
+08001a00 g     F .text	00000016 SysTickVector
+08002da0 g     F .text	00000040 icuStart
+080074c0 g     F .text	00000044 gwinSliderSetPosition
+08003070 g     F .text	00000010 spiObjectInit
+0800172c g     F .text	00000012 .hidden __aeabi_dcmpgt
+08003660 g     F .text	000000c4 stm32_clock_init
+0800be90 g     F .text	00000090 memchr
+080018d0  w    F .text	00000002 Vector1A4
+08003ac0 g     F .text	000001c0 _pal_lld_init
+0800c800 g     F .text	0000019c _free_r
+08001718 g     F .text	00000012 .hidden __aeabi_dcmpge
+08002f80 g     F .text	00000004 sdInit
+080018d0  w    F .text	00000002 BusFaultVector
+080053d0 g     F .text	00000012 gdispCloseFont
+08000e98 g     F .text	0000027a .hidden __aeabi_dsub
+080018d0  w    F .text	00000002 VectorD0
+080065b0 g     F .text	00000020 _gwidgetInit
+200010b8 g     O .data	00000004 __malloc_sbrk_base
+080029b0 g     F .text	00000028 _core_init
+080041f0 g     F .text	00000018 pwm_lld_init
+080050f0 g     F .text	00000170 gdispGFillStringBox
+08001194 g     F .text	0000006a .hidden __floatundidf
+08006b50 g     F .text	00000150 gwinPutChar
+08002fd0 g     F .text	0000003c sdStart
+0800c2f0 g     F .text	000000bc __lshift
+080086e0 g     F .text	00000080 gdisp_lld_fill_area
+080018d0  w    F .text	00000002 Vector140
+0800c600 g     F .text	00000100 __ssprint_r
+080018d0  w    F .text	00000002 VectorE4
+08002ec0 g     F .text	00000040 pwmEnableChannel
+08006600 g     F .text	0000000c _gwidgetUpdate
+080018d0  w    F .text	00000002 VectorC0
+08003460 g     F .text	0000002c Vector158
+08007220 g     F .text	00000238 gwinSliderDraw_Std
+080033d0 g     F .text	00000028 Vector130
+08001a20 g     F .text	00000018 _port_switch
+0800c110 g     F .text	0000013c __multiply
+08006400 g     F .text	00000014 gwinResize
+20004530 g     O .bss	00000028 __malloc_current_mallinfo
+080023b0 g     F .text	00000060 chSemWaitS
+0800c4e0 g     F .text	000000b2 __d2b
+08001900 g     F .text	00000024 SVCallVector
+08001790  w    F .text	00000002 __late_init
+08004cc0 g     F .text	00000078 gdispGSetClip
+08001c30 g     F .text	0000000c chDbgPanic
+20001684 g     O .bss	00000010 vtlist
+08005620 g     F .text	00000158 mf_render_aligned
+080018d0  w    F .text	00000002 HardFaultVector
+08001980 g     F .text	00000078 _port_irq_epilogue
+080018d0  w    F .text	00000002 Vector134
+080029e0 g     F .text	00000034 chCoreAlloc
+08003fe0 g     F .text	0000002c icu_lld_init
+08001134 g     F .text	00000022 .hidden __aeabi_i2d
+080045b0 g     F .text	0000001c _gosInit
+080046a0 g     F .text	00000024 gfxThreadCreate
+08002a60 g     F .text	00000080 chHeapAlloc
+08007980 g     F .text	000006c8 ginputCalibrateMouse
+080018d0  w    F .text	00000002 VectorF0
+08005ac0 g     F .text	0000019e mf_bwfont_render_character
+08004600 g     F .text	0000002c gfxSleepMicroseconds
+080033a0 g     F .text	0000002c Vector12C
+200017c8 g     O .bss	00000030 SPID2
+08002e50 g     F .text	00000004 pwmInit
+080018d0  w    F .text	00000002 Vector13C
+08000810  w    F .text	00000002 .hidden __aeabi_ldiv0
+08001454 g     F .text	000001d0 .hidden __divdf3
+08009450 g     F .text	00000064 strncat
+080054c0 g     F .text	00000030 mf_render_character
+20000cac g     O .data	00000408 __malloc_av_
+08002de0 g     F .text	00000038 icuEnable
+080018d0  w    F .text	00000002 Vector100
+08001200 g     F .text	00000254 .hidden __muldf3
+0800fb28 g       .stacks	00000000 _textdata
+08003ee0 g     F .text	00000036 spi_lld_exchange
+080018d0  w    F .text	00000002 VectorE0
+080018d0  w    F .text	00000002 VectorF4
+080018d0  w    F .text	00000002 MemManageVector
+0800bf20 g     F .text	00000002 __malloc_lock
+080001ac g       startup	00000000 __fini_array_start
+0800c700 g     F .text	0000005e _calloc_r
+08004d40 g     F .text	00000076 gdispGControl
+200024f4 g     O .bss	00000004 _GWINwm
+08009240 g     F .text	00000094 memset
+080001b0 g     F .text	00000590 main
+08003190 g     F .text	00000028 Vector6C
+0800ddc0 g     O .text	00000030 mf_rlefont_UI1
+20004524 g     O .bss	00000004 __malloc_max_total_mem
+08002c80 g     F .text	0000003c adcStart
+08002d80 g     F .text	00000004 icuInit
+20001694 g     O .bss	0000001c rlist
+08002310 g     F .text	00000020 chRegFirstThread
+080018d0  w    F .text	00000002 VectorA0
+08003060 g     F .text	00000004 spiInit
+08003170 g     F .text	00000020 spiReleaseBus
+08002d90 g     F .text	0000000a icuObjectInit
+08002c60 g     F .text	00000016 adcObjectInit
+080001ac g       startup	00000000 __init_array_end
+08002e20 g     F .text	0000002c palSetBusMode
+0800aae0 g     F .text	00000e58 _dtoa_r
+0800b950 g     F .text	00000538 _malloc_r
+08004330 g     F .text	00000032 pwm_lld_enable_channel
+080011a4 g     F .text	0000005a .hidden __aeabi_l2d
+080018d0  w    F .text	00000002 VectorC4
+08003250 g     F .text	00000028 Vector7C
+08006370 g     F .text	0000000c gwinSetDefaultBgColor
+080059d0 g     F .text	000000ca mf_rlefont_render_character
+080018d0  w    F .text	00000002 Vector180
+08002500 g     F .text	0000001c chMtxInit
+08007460 g     F .text	0000002c gwinGSliderCreate
+08001ae0 g     F .text	00000014 _idle_thread
+08006680 g     F .text	0000000e gwinGetText
+08002930 g     F .text	00000080 chOQWriteTimeout
+08002e60 g     F .text	0000000a pwmObjectInit
+08003fa0 g     F .text	00000014 VectorB0
+0800c760 g     F .text	0000009c _malloc_trim_r
+0800cfc0 g     O .text	00000016 ch_debug
+08006150 g     F .text	00000006 gtimerInit
+20002598 g     O .bss	00000002 last_period_2
+080018d0  w    F .text	00000002 Vector90
+08002660 g     F .text	00000058 chEvtSignalI
+080018d0  w    F .text	00000002 Vector114
+08005fe0 g     F .text	00000016 geventGetEventBuffer
+08001a40 g     F .text	00000012 _port_thread_start
+080018d0  w    F .text	00000002 Vector164
+080018d0  w    F .text	00000002 Vector60
+080018d0  w    F .text	00000002 Vector1C
+08001640 g     F .text	0000007a .hidden __nedf2
+08001f70 g     F .text	0000005c chSchDoRescheduleAhead
+080063b0 g     F .text	0000003c gwinSetVisible
+0800f3d0 g     O .text	0000001a WhiteWidgetStyle
+08003ab0 g     F .text	00000010 adcSTM32EnableTSVREFE
+080018d0  w    F .text	00000002 Vector17C
+080092e0 g     F .text	0000004c sprintf
+080052a0 g     F .text	00000010 gdispGetCharWidth
+080018d0  w    F .text	00000002 Vector48
+20000400 g       .stacks	00000000 __process_stack_base__
+08008330 g     F .text	0000036c gdisp_lld_init
+080018d0  w    F .text	00000002 Vector1A8
+080030c0 g     F .text	0000007c spiExchange
+08003840 g     F .text	00000084 adc_lld_start_conversion
+080065d0 g     F .text	00000020 _gwidgetDestroy
+080018d0  w    F .text	00000002 Vector16C
+08006ca0 g     F .text	0000026c gwinPrintf
+20000c70 g     O .data	00000004 _impure_ptr
+080031c0 g     F .text	0000002c Vector70
+080018d0  w    F .text	00000002 VectorD4
+08001ab0 g     F .text	0000002a nvicSetSystemHandlerPriority
+08004be0 g     F .text	0000002c gdispGClear
+08006a60 g     F .text	00000044 _gwmInit
+08005e00 g     F .text	0000000c _geventInit
+08002230 g     F .text	00000074 chThdRelease
+08004770 g     F .text	00000010 gfxQueueASyncRemove
+08004010 g     F .text	00000108 icu_lld_start
+20001110 g     O .bss	00000168 _idle_thread_wa
+08002870 g     F .text	0000001c chOQInit
+08002790 g     F .text	00000042 chIQGetTimeout
+20000800 g       .data	00000000 _data
+08006000 g     F .text	00000038 geventSendEvent
+08001c80 g     F .text	0000000c fifo_remove
+08002bf0 g     F .text	00000028 chPoolFree
+080063a0 g     F .text	0000000c gwinGetDefaultFont
+080018d0  w    F .text	00000002 Vector4C
+080018d0  w    F .text	00000002 Vector144
+08003280 g     F .text	0000002c Vector80
+08002740 g     F .text	0000004c chIQPutI
+08008f70 g     F .text	000000c0 readVoltage
+080018f0 g     F .text	00000006 _port_switch_from_isr
+200017f8 g     O .bss	00000018 ICUD2
+08006360 g     F .text	00000010 gwinClearInit
+080018d0  w    F .text	00000002 Vector15C
+08004dc0 g     F .text	000000f4 _gdispInit
+080018d0  w    F .text	00000002 Vector68
+080025e0 g     F .text	00000080 chMtxUnlock
+08001bd0 g     F .text	00000014 _trace_init
+20000400 g       .stacks	00000000 __main_stack_end__
+0800ee00 g     O .text	00000024 mf_rlefont_UI2_Narrow
+08003220 g     F .text	0000002c Vector78
+080016dc g     F .text	00000012 .hidden __aeabi_dcmpeq
+08001c90 g     F .text	0000000c dequeue
+200010bc g       .data	00000000 _edata
+200025a1 g     O .bss	00000001 ADC2status
+08001d20 g     F .text	00000044 chVTResetI
+080018d0 g     F .text	00000002 _unhandled_exception
+080018d0  w    F .text	00000002 Vector170
+08002f90 g     F .text	00000040 sdObjectInit
+08006270 g     F .text	00000048 gtimerStop
+080066c0 g     F .text	0000005c gwinSetDefaultStyle
+08003910 g     F .text	000000d0 Vector88
+20000800 g     O .data	00000004 GDISP
+200010b4 g     O .data	00000004 __malloc_trim_threshold
+20000400 g       .stacks	00000000 __main_thread_stack_base__
+08008760 g     F .text	00000114 gdisp_lld_control
+0800c400 g     F .text	000000d4 __mdiff
+08006f60 g     F .text	00000124 gwinButtonDraw_Normal
+08001740 g     F .text	0000004e .hidden __aeabi_d2iz
+080063f0 g     F .text	00000008 gwinGetVisible
+080018d0  w    F .text	00000002 Vector104
+08005f10 g     F .text	00000054 geventRegisterCallback
+080018d0  w    F .text	00000002 Vector184
+08006040 g     F .text	00000020 geventDetachSourceListeners
+080088e0 g     F .text	0000017c ginput_lld_mouse_get_reading
+200025b4 g     O .bss	00000002 last_period
+080018d0  w    F .text	00000002 Vector10C
+08001bf0 g     F .text	00000040 dbg_trace
+08008050 g     F .text	000000f8 ginputGetMouse
+08000810  w    F .text	00000002 .hidden __aeabi_idiv0
+080001ac g       startup	00000000 __init_array_start
+080046f0 g     F .text	00000024 gfxQueueASyncPut
+08003080 g     F .text	00000040 spiStart
+08006ab0 g     F .text	00000010 gwinGetNextWindow
+08004120 g     F .text	00000058 icu_lld_enable
+080018d0  w    F .text	00000002 Vector14C
+08007090 g     F .text	0000001c gwinGButtonCreate
+08002010 g     F .text	0000005c _thread_init
+200025b6 g     O .bss	00000002 last_width
+20001828 g     O .bss	00000014 PWMD3
+080018d0  w    F .text	00000002 Vector50
+080038d0 g     F .text	00000032 adc_lld_stop_conversion
+08006690 g     F .text	00000030 gwinSetStyle
+080093f0 g     F .text	0000005e strlen
+080034e0 g     F .text	000000bc dmaStreamAllocate
+080018d0  w    F .text	00000002 Vector194
+080016cc g     F .text	00000010 .hidden __aeabi_cdcmpeq
+08001630 g     F .text	0000008a .hidden __gedf2
+08003430 g     F .text	0000002c Vector154
+080021a0 g     F .text	00000024 chThdYield
+08002330 g     F .text	00000044 chRegNextThread
+080007b0 g     F .text	00000030 .hidden __gnu_ldivmod_helper
+08005380 g     F .text	0000004e gdispOpenFont
+08002890 g     F .text	0000004e chOQPutTimeout
+08002490 g     F .text	00000010 chSemWaitTimeout
+20000000 g       .stacks	00000000 __main_stack_base__
+080018d0  w    F .text	00000002 Vector44
+08001158 g     F .text	0000003a .hidden __aeabi_f2d
+080018d0  w    F .text	00000002 Vector28
+08004560 g     F .text	00000002 boardInit
+080018d0  w    F .text	00000002 VectorB8
+0800f370 g     O .text	00000024 mf_bwfont_fixed_5x8
+080044b0 g     F .text	0000009c sd_lld_start
+080032e0 g     F .text	0000002c VectorFC
+08006390 g     F .text	0000000c gwinSetDefaultFont
+08000e98 g     F .text	0000027a .hidden __subdf3
+20000800 g       .stacks	00000000 __process_stack_end__
+08001ca0 g     F .text	0000000a list_remove
+0800c090 g     F .text	0000005a __lo0bits
+080018d0  w    F .text	00000002 Vector34
+08000740 g     F .text	00000000 .hidden __aeabi_ldivmod
+08004550 g     F .text	00000004 __early_init
+080024a0 g     F .text	00000054 chSemSignalI
+08003370 g     F .text	0000002c Vector128
+080086a0 g     F .text	00000004 gdisp_lld_write_start
+080018d0  w    F .text	00000002 VectorA4
+080018d0  w    F .text	00000002 Vector20
+080018d0  w    F .text	00000002 Vector18C
+0800bfb0 g     F .text	00000096 __multadd
+08002420 g     F .text	0000006c chSemWaitTimeoutS
+0800bf90 g     F .text	00000012 _Bfree
+080018d0  w    F .text	00000002 Vector174
+
+
