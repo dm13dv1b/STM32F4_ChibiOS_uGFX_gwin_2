@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -68,9 +68,9 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-HOME = /home/makkmarci/devel
-GFXLIB = $(HOME)/ugfx
-CHIBIOS = ../..
+HOME = /home/makkmarci
+GFXLIB = $(HOME)/workspace/ugfx
+CHIBIOS = $(HOME)/workspace/ChibiOS_2.6.8
 include $(CHIBIOS)/boards/ST_STM32F4_DISCOVERY/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -78,8 +78,11 @@ include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 #include $(CHIBIOS)/test/test.mk
 include $(GFXLIB)/gfx.mk
-include $(GFXLIB)/drivers/gdisp/SSD1289/gdisp_lld.mk
-include $(GFXLIB)/drivers/ginput/touch/ADS7843/ginput_lld.mk
+#include $(GFXLIB)/drivers/gdisp/SSD1289/gdisp_lld.mk
+include $(GFXLIB)/drivers/gdisp/SSD1289/driver.mk
+include $(GFXLIB)/drivers/ginput/touch/ADS7843/driver.mk
+#include $(GFXLIB)/drivers/ginput/touch/ADS7843/ginput_lld.mk
+
 
 
 # Define linker script file here
@@ -147,7 +150,7 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 MCU  = cortex-m4
 
 #TRGT = arm-elf-
-TRGT = //opt/ARM/bin/arm-none-eabi-
+TRGT = //home/makkmarci/bin/arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.

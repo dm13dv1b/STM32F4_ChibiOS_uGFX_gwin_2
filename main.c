@@ -39,7 +39,7 @@
  */
 
 //#ifdef BOOTSCREEN
-//static GConsoleObject			gc;
+static GConsoleObject			gc;
 //#endif
 
 #ifdef LOGO
@@ -49,8 +49,6 @@ static GHandle					ghApriliaLogo, ghAprilia;
 static GEventMouse				*pem;
 static GEvent*					pe;
 static GListener				gl;
-//static GSourceHandle 			mouse;
-//static GSourceHandle			gs, gsBrightness, gsConsole;
 static GHandle					ghc;
 static GHandle					ghStatus1, ghStatus2;
 static GHandle					ghConsole;
@@ -62,7 +60,7 @@ static coord_t 					width, height;
 static coord_t					bHeight, bWidth;
 static coord_t					swidth, sheight;
 static font_t					font;
-
+        
 unsigned int					i;
 uint16_t						average;
 uint8_t							console;
@@ -379,14 +377,9 @@ static void CreateLogo(void)
 }
 #endif
 
+/*
 static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
 {
-	/*
-    (void)instance;
-    (void)calbuf;
-    (void)sz;
-    memcpy(&t_calibration, calbuf, (uint8_t) sz);
-	*/
 	uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
 	uint16_t i;
 
@@ -421,6 +414,7 @@ static const char *myload(uint16_t instance)
 		//buf = "/x3d/x84/x21/xa6/x39/x65/x11/x4e/xc1/x51/xda/xf1/xb9/xfe/x85/x01/xbd/xb8/xec/xa2/x43/xb0/xcb/x9f";
 		return buf;
 }
+*/
 
 #if BOOTSCREEN
 static void bootScreen(void)
@@ -628,9 +622,9 @@ int main(void) {
   /* initialize and clear the display */
   gfxInit();
   ginputGetMouse(9999);
+        
   //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
   //ginputGetMouse(0);
-  gwinAttachMouse(0);
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
   //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
@@ -688,17 +682,16 @@ int main(void) {
 
 	  	  switch(pe->type) {
 	  	  	  case GEVENT_TOUCH:
-	  		  		  	  	  	  {
-	  		  		  	  	  	  	  pem = (GEventMouse *)pe;
-	  		  		  	  	  	  	  if ((pem->meta & GMETA_MOUSE_CLICK)) {
-	  		  		  	  	  					//gwinSetColor(ghc, Yellow);
-	  		  		  	  	  					chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
-	  		  		  	  	  				}
-	  		  		  	  	  	  }
+	  		  	{
+                                    pem = (GEventMouse *)pe;
+                                        if ((pem->type & GMETA_MOUSE_CLICK)) {
+	  		  		chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
+	  		  		}
+	  		  }	  	  	  	  
 
 
 	  	  	  case GEVENT_GWIN_BUTTON:
-	  	  		   	   if (((GEventGWinButton*)pe)->button == ghConsole)
+	  	  		   	   if (((GEventGWinButton*)pe)->gwin == ghConsole)
 	  	  		   	   	   {
 	  	  		   		   	   gwinSetText(ghStatus2, "Console", TRUE);
 	  	  		   		   	   chprintf( (BaseSequentialStream *)&SD2, "\r\nConsole button", NULL );
@@ -706,10 +699,10 @@ int main(void) {
 	  	  		   	   break;
 
 	  	  	  case GEVENT_GWIN_SLIDER:
-	  	  		  	  if (((GEventGWinSlider*)pe)->slider == ghBrightness)
+	  	  		  	  if (((GEventGWinSlider*)pe)->gwin == ghBrightness)
 	  	  		  	  {
 	  	  	  	  	  	  gdispSetBacklight(((GEventGWinSlider *)pe)->position);
-	  	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->slider),
+	  	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->gwin),
 	  	  		  	  	                                                           ((GEventGWinSlider *)pe)->position);
 	  	  		  	  }
 	  	  		  	   break;

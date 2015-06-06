@@ -21,7 +21,7 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-#define GDISP_USE_DMA
+#define GDISP_USE_DMA                               TRUE
 ///////////////////////////////////////////////////////////////////////////
 // GOS - One of these must be defined, preferably in your Makefile       //
 ///////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@
 //#define GDISP_NEED_IMAGE_PNG                     		TRUE
 //    #define GDISP_NEED_IMAGE_ACCOUNTING              FALSE
 
-#define GDISP_NEED_STARTUP_LOGO                      TRUE
+#define GDISP_NEED_STARTUP_LOGO                      FALSE
 
 //#define GDISP_DEFAULT_ORIENTATION                    GDISP_ROTATE_LANDSCAPE    // If not defined the native hardware orientation is used.
 //#define GDISP_LINEBUF_SIZE                           128
@@ -170,11 +170,8 @@
 #define GFX_USE_GINPUT                               	TRUE
 
 #define GINPUT_NEED_MOUSE                            	TRUE
-//#define GINPUT_NEED_KEYBOARD                         FALSE
-//#define GINPUT_NEED_TOGGLE                           FALSE
-//#define GINPUT_NEED_DIAL                             FALSE
-
-
+#define GINPUT_TOUCH_NOCALIBRATE_GUI             		TRUE
+//#define GINPUT_MOUSE_NEED_CALIBRATION					TRUE
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
 ///////////////////////////////////////////////////////////////////////////
