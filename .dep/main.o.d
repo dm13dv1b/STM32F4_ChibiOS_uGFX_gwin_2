@@ -145,7 +145,8 @@ build/obj/main.o: main.c \
  /home/makkmarci/workspace/ugfx/src/ginput/ginput_dial.h \
  /home/makkmarci/workspace/ugfx/src/gadc/gadc.h \
  /home/makkmarci/workspace/ugfx/src/gaudio/gaudio.h main.h sram.h \
- aprilia.h Aprilia-4.h console.h
+ aprilia.h Aprilia-4.h console.h \
+ /home/makkmarci/workspace/ugfx/src/ginput/ginput_mouse.h
 
 /home/makkmarci/workspace/ChibiOS_2.6.8/os/kernel/include/ch.h:
 
@@ -458,3 +459,5 @@ aprilia.h:
 Aprilia-4.h:
 
 console.h:
+
+/home/makkmarci/workspace/ugfx/src/ginput/ginput_mouse.h:

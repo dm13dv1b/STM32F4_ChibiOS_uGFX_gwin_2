@@ -170,8 +170,10 @@
 #define GFX_USE_GINPUT                               	TRUE
 
 #define GINPUT_NEED_MOUSE                            	TRUE
-#define GINPUT_TOUCH_NOCALIBRATE_GUI             		TRUE
-//#define GINPUT_MOUSE_NEED_CALIBRATION					TRUE
+//#define GINPUT_TOUCH_STARTRAW							TRUE
+//#define GINPUT_TOUCH_NOCALIBRATE_GUI             		FALSE
+//#define GINPUT_TOUCH_USER_CALIBRATION_SAVE				TRUE
+
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
 ///////////////////////////////////////////////////////////////////////////

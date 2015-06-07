@@ -33,6 +33,7 @@
 #include "aprilia.h"
 #include "Aprilia-4.h"
 #include "console.h"
+#include "/home/makkmarci/workspace/ugfx/src/ginput/ginput_mouse.h"
 
 /*
  * Globals definition
@@ -377,7 +378,6 @@ static void CreateLogo(void)
 }
 #endif
 
-/*
 static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
 {
 	uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
@@ -414,7 +414,7 @@ static const char *myload(uint16_t instance)
 		//buf = "/x3d/x84/x21/xa6/x39/x65/x11/x4e/xc1/x51/xda/xf1/xb9/xfe/x85/x01/xbd/xb8/xec/xa2/x43/xb0/xcb/x9f";
 		return buf;
 }
-*/
+
 
 #if BOOTSCREEN
 static void bootScreen(void)
@@ -621,10 +621,10 @@ int main(void) {
 
   /* initialize and clear the display */
   gfxInit();
-  ginputGetMouse(9999);
-        
-  //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
-  //ginputGetMouse(0);
+  //ginputGetMouse(9999);
+  //gwinAttachMouse(0);
+  //ginputSetMouseCalibrationRoutines(0, mysave, NULL, FALSE);
+  ginputGetMouse(0);
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
   //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);

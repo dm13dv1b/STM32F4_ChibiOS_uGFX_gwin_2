@@ -9,7 +9,7 @@
 #define MAIN_H_
 
 #define DEBUG_TO_SERIAL			FALSE
-#define BOOTSCREEN				TRUE
+#define BOOTSCREEN				FALSE
 #define LOGO					FALSE
 #define NEED_IMAGE				FALSE
 
