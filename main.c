@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include "stdlib.h"
 #include "string.h"
+#include "shell.h"
 #include "myADC.h"
 #include "gfx.h"
 #include "main.h"
@@ -39,18 +40,30 @@
  * Globals definition
  */
 
+<<<<<<< HEAD
 //#ifdef BOOTSCREEN
 static GConsoleObject			gc;
 //#endif
+=======
+Thread *shelltp = NULL;
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
 
-#ifdef LOGO
+#if LOGO
 static GHandle					ghApriliaLogo, ghAprilia;
+#endif
+
+#if BOOTSCREEN
+static GHandle					ghc;
+static GConsoleObject			gc;
 #endif
 
 static GEventMouse				*pem;
 static GEvent*					pe;
 static GListener				gl;
+<<<<<<< HEAD
 static GHandle					ghc;
+=======
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
 static GHandle					ghStatus1, ghStatus2;
 static GHandle					ghConsole;
 static GHandle					ghBrightness;
@@ -69,6 +82,108 @@ uint32_t 						sum;
 uint8_t							ADC2status;
 char							Result[6];
 uint16_t 						j;
+
+/*===========================================================================*/
+/* Command line related.                                                     */
+/*===========================================================================*/
+
+#define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define TEST_WA_SIZE    THD_WA_SIZE(256)
+
+static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
+  size_t n, size;
+
+  (void)argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: mem\r\n");
+    return;
+  }
+  n = chHeapStatus(NULL, &size);
+  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+  chprintf(chp, "heap fragments   : %u\r\n", n);
+  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+}
+
+static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
+  static const char *states[] = {THD_STATE_NAMES};
+  Thread *tp;
+
+  (void)argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: threads\r\n");
+    return;
+  }
+  chprintf(chp, "    addr    stack prio refs     state time\r\n");
+  tp = chRegFirstThread();
+  do {
+    chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n",
+            (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
+            (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
+            states[tp->p_state], (uint32_t)tp->p_time);
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
+}
+
+static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
+  Thread *tp;
+
+  (void)argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: test\r\n");
+    return;
+  }
+  //tp = chThdCreateFromHeap(NULL, TEST_WA_SIZE, chThdGetPriority(),
+  //                         TestThread, chp);
+  if (tp == NULL) {
+    chprintf(chp, "out of memory\r\n");
+    return;
+  }
+  chThdWait(tp);
+}
+
+static void cmd_write(BaseSequentialStream *chp, int argc, char *argv[]) {
+  static uint8_t buf[] =
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+  (void)argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: write\r\n");
+    return;
+  }
+
+  while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
+    chSequentialStreamWrite(&SD2, buf, sizeof buf - 1);
+  }
+  chprintf(chp, "\r\n\nstopped\r\n");
+}
+
+static const ShellCommand commands[] = {
+  {"mem", cmd_mem},
+  {"threads", cmd_threads},
+  {"test", cmd_test},
+  {"write", cmd_write},
+  {NULL, NULL}
+};
+
+static const ShellConfig shell_cfg1 = {
+  (BaseSequentialStream *)&SD2,
+  commands
+};
 
 /* ICU variables
  *
@@ -207,53 +322,6 @@ void myADCinit(void){
 	adcSTM32EnableTSVREFE();
 }
 
-int uitoa(unsigned int value, char * buf, int max) {
-		int n = 0;
-		int i = 0;
-		unsigned int tmp = 0;
-		if (NULL == buf) {
-		return -3;
-		}
-		if (2 > max) {
-		return -4;
-		}
-		i=1;
-		tmp = value;
-		if (0 > tmp) {
-		tmp *= -1;
-		i++;
-		}
-		for (;;) {
-		tmp /= 10;
-		if (0 >= tmp) {
-		break;
-		}
-		i++;
-		}
-		if (i >= max) {
-		buf[0] = '?';
-		buf[1] = 0x0;
-		return 2;
-		}
-		n = i;
-		tmp = value;
-		if (0 > tmp) {
-		tmp *= -1;
-		}
-		buf[i--] = 0x0;
-		for (;;) {
-		buf[i--] = (tmp % 10) + '0';
-		tmp /= 10;
-		if (0 >= tmp) {
-		break;
-		}
-		}
-		if (-1 != i) {
-		buf[i--] = '-';
-		}
-		return n;
-}
-
 void readADC(void)
 {
 	uint32_t i;
@@ -275,7 +343,7 @@ void readADC(void)
 
 	  gwinSetText(ADCvalue, Result, TRUE);
 	  //prints the averaged value with 4 digits precision
-	  chprintf((BaseSequentialStream *)&SD2, "\r\nMeasured: %U.%04UV", sum/10000, sum%10000);
+	  //chprintf((BaseSequentialStream *)&SD2, "\r\nMeasured: %U.%04UV", sum/10000, sum%10000);
 	/*
 	i = avg;
 	sprintf ( Result, "%i", i ); // %d makes the result be a decimal integer
@@ -304,7 +372,7 @@ void readVoltage(void)
 	  sum /= ADC_GRP2_BUF_DEPTH;
 
 	  thisTemp = (((int64_t)sum)*VREFINT*400/VREFMeasured-30400)+2500;
-	  chprintf((BaseSequentialStream *)&SD2, "\r\nTemperature: %d.%2U°C", thisTemp/100,thisTemp%100);
+	  //chprintf((BaseSequentialStream *)&SD2, "\r\nTemperature: %d.%2U°C", thisTemp/100,thisTemp%100);
 
 	  sprintf(Result, "%d", (uint8_t)thisTemp/100);
 	  sprintf(Result2, ".%iC", (uint8_t)thisTemp%100);
@@ -316,17 +384,14 @@ void readICU(void)
 {
 	uint16_t last_period_float;
 	uint16_t last_period_float_2;
-	//last_period_float = last_period;
-	//last_period_float /= 1000;
-	//last_period_float = 1/last_period_float;
 	last_period_float = RTT2US(last_period);
 	last_period_float_2 = RTT2US(last_period_2);
 	sprintf(Result, "%u", last_period_float);
 	gwinSetText(ICU1value, Result, TRUE);
-	chprintf((BaseSequentialStream *)&SD2, "\r\nICU1 %d", last_period);
+	//chprintf((BaseSequentialStream *)&SD2, "\r\nICU1 %d", last_period);
 	sprintf(Result, "%u", last_period_float_2);
 	gwinSetText(ICU2value, Result, TRUE);
-	chprintf((BaseSequentialStream *)&SD2, "\r\nICU2 %d", last_period_2);
+	//chprintf((BaseSequentialStream *)&SD2, "\r\nICU2 %d", last_period_2);
 }
 
 static WORKING_AREA(waThread2, 2048);
@@ -335,13 +400,10 @@ static msg_t Thread2(void *arg) {
   (void)arg;
   chRegSetThreadName("ADC blinker");
   while (TRUE) {
-#ifdef DEBUG_TO_SERIAL
+#if DEBUG_TO_SERIAL
   chprintf( (BaseSequentialStream *)&SD2, "\r\nADC sampling", NULL );
 #endif
-  if (console == 1)
-  {
-	  gwinPrintf(ghc, "\r\nADC sampling");
-  }
+
   palTogglePad(GPIOD, GPIOD_LED4);       /* Orange.  */
   chSysLockFromIsr();
     readADC();
@@ -378,6 +440,7 @@ static void CreateLogo(void)
 }
 #endif
 
+<<<<<<< HEAD
 static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
 {
 	uint8_t* base_addr = (uint8_t *) BKPSRAM_BASE;
@@ -416,6 +479,8 @@ static const char *myload(uint16_t instance)
 }
 
 
+=======
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
 #if BOOTSCREEN
 static void bootScreen(void)
 {
@@ -433,7 +498,17 @@ static void bootScreen(void)
 		ghc = gwinConsoleCreate(&gc, &wi);
 	}
 	gwinPrintf(ghc, "Boot finished.\n");
-	chThdSleepMilliseconds(500);
+	gwinPrintf(ghc, "\r\nADC init");
+	gwinPrintf(ghc, "\r\nICU init");
+	gwinPrintf(ghc, "\r\nGFX init");
+	gwinPrintf(ghc, "\r\nThreads created");
+#if LOGO
+	gwinPrintf(ghc, "\r\nLOGO enabled");
+#endif
+	gwinPrintf(ghc, "Kernel:       %s\r\n", CH_KERNEL_VERSION);
+	gwinPrintf(ghc, "Port Info:    %s\r\n", CH_PORT_INFO);
+	gwinPrintf(ghc, "Build time:   %s%s%s\r\n", __DATE__, " - ", __TIME__);
+	chThdSleepMilliseconds(1000);
 }
 #endif
 
@@ -596,8 +671,9 @@ static msg_t Thread1(void *arg) {
   return 0;
 }
 
-void startBlinker(void){
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+void startBlinker(void)
+{
+	chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 }
 
 /*
@@ -615,22 +691,32 @@ int main(void) {
   halInit();
   chSysInit();
 
+  shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+
+  /*
+   * Shell manager initialization.
+   */
+  shellInit();
+
   ADC2status = 0;
 
   //write_to_backup_sram(0, 0, 0);
 
   /* initialize and clear the display */
   gfxInit();
+<<<<<<< HEAD
   //ginputGetMouse(9999);
   //gwinAttachMouse(0);
   //ginputSetMouseCalibrationRoutines(0, mysave, NULL, FALSE);
   ginputGetMouse(0);
+=======
+  ginputGetMouse(9999);
+  gwinAttachMouse(0);
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
   //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
 
-
-  //mouse = ginputGetMouse(0);
   //get screen size
   width = gdispGetWidth();
   height = gdispGetHeight();
@@ -651,8 +737,6 @@ int main(void) {
   palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
 
   chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
-
-  //mouse = ginputGetMouse(0);
 
   font = gdispOpenFont("UI2");
   gwinSetDefaultFont(font);
@@ -682,19 +766,29 @@ int main(void) {
 
 	  	  switch(pe->type) {
 	  	  	  case GEVENT_TOUCH:
+<<<<<<< HEAD
 	  		  	{
                                     pem = (GEventMouse *)pe;
                                         if ((pem->type & GMETA_MOUSE_CLICK)) {
 	  		  		chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
 	  		  		}
 	  		  }	  	  	  	  
+=======
+	  		  		  	  	  	  {
+	  		  		  	  	  	  	  pem = (GEventMouse *)pe;
+	  		  		  	  	  	  	  if ((pem->meta & GMETA_MOUSE_CLICK)) {
+	  		  		  	  	  					//gwinSetColor(ghc, Yellow);
+	  		  		  	  	  					//chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
+	  		  		  	  	  				}
+	  		  		  	  	  	  }
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
 
 
 	  	  	  case GEVENT_GWIN_BUTTON:
 	  	  		   	   if (((GEventGWinButton*)pe)->gwin == ghConsole)
 	  	  		   	   	   {
 	  	  		   		   	   gwinSetText(ghStatus2, "Console", TRUE);
-	  	  		   		   	   chprintf( (BaseSequentialStream *)&SD2, "\r\nConsole button", NULL );
+	  	  		   		   	   //chprintf( (BaseSequentialStream *)&SD2, "\r\nConsole button", NULL );
 	  	  		   	   	   };
 	  	  		   	   break;
 
@@ -702,8 +796,13 @@ int main(void) {
 	  	  		  	  if (((GEventGWinSlider*)pe)->gwin == ghBrightness)
 	  	  		  	  {
 	  	  	  	  	  	  gdispSetBacklight(((GEventGWinSlider *)pe)->position);
+<<<<<<< HEAD
 	  	  		  	  	  chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->gwin),
 	  	  		  	  	                                                           ((GEventGWinSlider *)pe)->position);
+=======
+	  	  		  	  	  //chprintf((BaseSequentialStream *)&SD2,"Slider %s = %d\r\n", gwinGetText(((GEventGWinSlider *)pe)->slider),
+	  	  		  	  	                                                           //((GEventGWinSlider *)pe)->position);
+>>>>>>> b444c666b6a47fb0d3e826793d7476eef58145e6
 	  	  		  	  }
 	  	  		  	   break;
 	  		  default:
