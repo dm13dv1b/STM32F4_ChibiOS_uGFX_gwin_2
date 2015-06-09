@@ -68,9 +68,9 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-HOME = /home/makkmarci/devel
+HOME = /home/makkmarci/workspace/macbook/
 GFXLIB = $(HOME)/ugfx
-CHIBIOS = ../..
+CHIBIOS = $(HOME)/ChibiOS_2.6.5
 include $(CHIBIOS)/boards/ST_STM32F4_DISCOVERY/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -147,7 +147,7 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 MCU  = cortex-m4
 
 #TRGT = arm-elf-
-TRGT = //opt/ARM/bin/arm-none-eabi-
+TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
