@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -68,9 +68,9 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-HOME = /home/makkmarci/devel
+HOME = /home/makkmarci/workspace
 GFXLIB = $(HOME)/ugfx
-CHIBIOS = ../..
+CHIBIOS = $(HOME)/ChibiOS
 include $(CHIBIOS)/boards/ST_STM32F4_DISCOVERY/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -147,7 +147,7 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 MCU  = cortex-m4
 
 #TRGT = arm-elf-
-TRGT = //opt/ARM/bin/arm-none-eabi-
+TRGT = /home/makkmarci/bin/arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.

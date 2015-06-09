@@ -1,0 +1,174 @@
+Compiler Options
+/home/makkmarci/bin/arm-none-eabi-gcc -c -mcpu=cortex-m4 -ggdb -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -Wall -Wextra -Wstrict-prototypes -Wa,-alms=build/lst/ -DCORTEX_USE_FPU=TRUE -DTHUMB_PRESENT -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -MD -MP -MF .dep/build.d -I. -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/ports/common/ARMCMx/CMSIS/include -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/ports/common/ARMCMx -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/ports/GCC/ARMCMx -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/ports/GCC/ARMCMx/STM32F4xx -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/kernel/include -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/include -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32F4xx -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/GPIOv2 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/I2Cv1 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/OTGv1 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/RTCv2 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/SPIv1 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/TIMv1 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/hal/platforms/STM32/USARTv1 -I/home/makkmarci/workspace/ChibiOS_2.6.8/boards/ST_STM32F4_DISCOVERY -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/various/devices_lib/accel -I/home/makkmarci/workspace/ugfx -I/home/makkmarci/workspace/ugfx/src/gdisp/mcufont -I/home/makkmarci/workspace/ugfx/3rdparty/tinygl-0.4-ugfx/include -I/home/makkmarci/workspace/ugfx/drivers/gdisp/SSD1289 -I/home/makkmarci/workspace/ChibiOS_2.6.8/os/various main.c -o main.o
+
+mkdir -p build/obj
+mkdir -p build/lst
+Compiling crt0.c
+Compiling vectors.c
+Compiling chcore.c
+Compiling chcore_v7m.c
+Compiling nvic.c
+Compiling chsys.c
+Compiling chdebug.c
+Compiling chlists.c
+Compiling chvt.c
+Compiling chschd.c
+Compiling chthreads.c
+Compiling chdynamic.c
+Compiling chregistry.c
+Compiling chsem.c
+Compiling chmtx.c
+Compiling chcond.c
+Compiling chevents.c
+Compiling chmsg.c
+Compiling chmboxes.c
+Compiling chqueues.c
+Compiling chmemcore.c
+Compiling chheap.c
+Compiling chmempools.c
+Compiling hal.c
+Compiling adc.c
+Compiling can.c
+Compiling ext.c
+Compiling gpt.c
+Compiling i2c.c
+Compiling icu.c
+Compiling mac.c
+Compiling mmc_spi.c
+Compiling mmcsd.c
+Compiling pal.c
+Compiling pwm.c
+Compiling rtc.c
+Compiling sdc.c
+Compiling serial.c
+Compiling serial_usb.c
+Compiling spi.c
+Compiling tm.c
+Compiling uart.c
+Compiling usb.c
+Compiling stm32_dma.c
+Compiling hal_lld.c
+Compiling adc_lld.c
+Compiling ext_lld_isr.c
+Compiling can_lld.c
+Compiling ext_lld.c
+Compiling mac_lld.c
+Compiling sdc_lld.c
+Compiling pal_lld.c
+Compiling i2c_lld.c
+Compiling usb_lld.c
+Compiling rtc_lld.c
+Compiling spi_lld.c
+Compiling gpt_lld.c
+Compiling icu_lld.c
+Compiling pwm_lld.c
+Compiling serial_lld.c
+Compiling uart_lld.c
+Compiling board.c
+Compiling gfx.c
+Compiling gos_chibios.c
+Compiling gos_freertos.c
+Compiling gos_win32.c
+Compiling gos_linux.c
+Compiling gos_osx.c
+Compiling gos_raw32.c
+Compiling gos_ecos.c
+Compiling gos_rawrtos.c
+Compiling gos_arduino.c
+Compiling gdriver.c
+Compiling gqueue.c
+Compiling gdisp.c
+Compiling gdisp_fonts.c
+Compiling gdisp_pixmap.c
+Compiling gdisp_image.c
+Compiling gdisp_image_native.c
+Compiling gdisp_image_gif.c
+Compiling gdisp_image_bmp.c
+Compiling gdisp_image_jpg.c
+Compiling gdisp_image_png.c
+Compiling mf_encoding.c
+Compiling mf_font.c
+Compiling mf_justify.c
+Compiling mf_kerning.c
+Compiling mf_rlefont.c
+Compiling mf_bwfont.c
+Compiling mf_scaledfont.c
+Compiling mf_wordwrap.c
+Compiling gevent.c
+Compiling gtimer.c
+Compiling gwin.c
+Compiling gwin_widget.c
+Compiling gwin_wm.c
+Compiling gwin_console.c
+Compiling gwin_graph.c
+Compiling gwin_button.c
+Compiling gwin_slider.c
+Compiling gwin_checkbox.c
+Compiling gwin_image.c
+Compiling gwin_label.c
+Compiling gwin_radio.c
+Compiling gwin_list.c
+Compiling gwin_progressbar.c
+Compiling gwin_container.c
+Compiling gwin_frame.c
+Compiling gwin_tabset.c
+Compiling gwin_gl3d.c
+Compiling gwin_keyboard.c
+Compiling gwin_keyboard_layout.c
+Compiling ginput.c
+Compiling ginput_mouse.c
+Compiling ginput_keyboard.c
+Compiling ginput_keyboard_microcode.c
+Compiling ginput_toggle.c
+Compiling ginput_dial.c
+Compiling gadc.c
+Compiling gaudio.c
+Compiling gmisc.c
+Compiling gmisc_arrayops.c
+Compiling gmisc_matrix2d.c
+Compiling gmisc_trig.c
+Compiling gfile.c
+Compiling gfile_fs_native.c
+Compiling gfile_fs_ram.c
+Compiling gfile_fs_rom.c
+Compiling gfile_fs_fatfs.c
+Compiling gfile_fs_petitfs.c
+Compiling gfile_fs_mem.c
+Compiling gfile_fs_chibios.c
+Compiling gfile_fs_strings.c
+Compiling gfile_printg.c
+Compiling gfile_scang.c
+Compiling gfile_stdio.c
+Compiling gfile_fatfs_wrapper.c
+Compiling gfile_fatfs_diskio_chibios.c
+Compiling gfile_petitfs_wrapper.c
+Compiling gfile_petitfs_diskio_chibios.c
+Compiling gdisp_lld_SSD1289.c
+Compiling gmouse_lld_ADS7843.c
+Compiling syscalls.c
+Compiling chprintf.c
+Compiling sram.c
+Compiling main.c
+main.c: In function 'uitoa':
+main.c:223:9: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+   if (0 > tmp) {
+         ^
+main.c:241:9: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+   if (0 > tmp) {
+         ^
+main.c: At top level:
+main.c:382:13: warning: 'mysave' defined but not used [-Wunused-function]
+ static void mysave(uint16_t instance, const uint8_t *calbuf, size_t sz)
+             ^
+main.c:408:20: warning: 'myload' defined but not used [-Wunused-function]
+ static const char *myload(uint16_t instance)
+                    ^
+Linking build/ch.elf
+Creating build/ch.hex
+Creating build/ch.bin
+Creating build/ch.dmp
+
+   text	   data	    bss	    dec	    hex	filename
+  86592	   2664	  15304	 104560	  19870	build/ch.elf
+
+Done

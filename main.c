@@ -624,13 +624,13 @@ int main(void) {
   ADC2status = 0;
 
   //write_to_backup_sram(0, 0, 0);
-
+  startBlinker();
   /* initialize and clear the display */
   gfxInit();
-  ginputGetMouse(9999);
+  ginputGetMouse(0);
   //ginputSetMouseCalibrationRoutines(0, mysave, myload, FALSE);
   //ginputGetMouse(0);
-  gwinAttachMouse(0);
+  // new ugfx do not need this gwinAttachMouse(0);
   geventListenerInit(&gl);
   gwinAttachListener(&gl);
   //geventAttachSource(&gl, mouse, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
@@ -644,7 +644,7 @@ int main(void) {
   sheight = gdispGetHeight();
   font = gdispOpenFont("UI2");
 
-  startBlinker();
+  //startBlinker();
 
   myADCinit();
   ICUinit();
@@ -690,7 +690,7 @@ int main(void) {
 	  	  	  case GEVENT_TOUCH:
 	  		  		  	  	  	  {
 	  		  		  	  	  	  	  pem = (GEventMouse *)pe;
-	  		  		  	  	  	  	  if ((pem->meta & GMETA_MOUSE_CLICK)) {
+	  		  		  	  	  	  	  if ((pem->type & GMETA_MOUSE_CLICK)) {
 	  		  		  	  	  					//gwinSetColor(ghc, Yellow);
 	  		  		  	  	  					chprintf((BaseSequentialStream *)&SD2, "\r\n-touch-click");
 	  		  		  	  	  				}
